@@ -1,0 +1,2 @@
+Little Nim game library
+
