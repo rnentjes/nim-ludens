@@ -1,0 +1,10 @@
+[Package]
+name: "ludens"
+version: "0.1"
+author: "Rien Nentjes"
+description: "Simple game engine"
+license: "MIT"
+srcDir: "lib"
+
+[Deps]
+requires: "nimrod >= 0.9.6"
