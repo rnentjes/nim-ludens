@@ -1,4 +1,4 @@
-import glfw
+import src/glfw3 as glfw
 import opengl
 import strutils
 
@@ -23,16 +23,16 @@ var
 ## -------------------------------------------------------------------------------
 
 proc Initialize() =
-    
-    if glfwInit() == 0:
+
+    if glfw.Init() == 0:
         write(stdout, "Could not initialize GLFW! \n")
 
-    if glfwOpenWindow(windowW.cint, windowH.cint, 0, 0, 0, 0, 0, 0, GLFW_WINDOW) == 0:
-        glfwTerminate()
+    if glfw.OpenWindow(windowW.cint, windowH.cint, 0, 0, 0, 0, 0, 0, GLFW_WINDOW) == 0:
+        glfw.Terminate()
 
     opengl.loadExtensions()
 
-    glfwSwapInterval(1)
+    glfw.SwapInterval(1)
 
     glClearColor(0.1,0.1,0.1,1.0)
     glClearDepth(1.0)
@@ -48,14 +48,14 @@ proc Initialize() =
 
     glOrtho(0.0, float(windowW), float(windowH), 0.0, 0.0, 1.0)
 
-    lastTime = glfwGetTime()
+    lastTime = glfw.GetTime()
     lastFPSTime = lastTime
 
 ## -------------------------------------------------------------------------------
 
 proc Update() =
-    
-    currentTime = glfwGetTime()
+
+    currentTime = glfw.GetTime()
 
     frameDelta = currentTime - lastTime
 
@@ -63,8 +63,8 @@ proc Update() =
 
     if currentTime - lastFPSTime > 1.0:
         frameRate = int(float(frameCount) / (currentTime - lastFPSTime))
-        glfwSetWindowTitle("FPS: $1" % intToStr(frameRate))
-        
+        glfw.SetWindowTitle("FPS: $1" % intToStr(frameRate))
+
         lastFPSTime = currentTime
         frameCount = 0
 
@@ -100,7 +100,7 @@ proc Update() =
 ## --------------------------------------------------------------------------------
 
 proc Render() =
-    
+
     glClear(GL_COLOR_BUFFER_BIT)
 
     glMatrixMode(GL_MODELVIEW)
@@ -121,22 +121,22 @@ proc Render() =
 
     glEnd()
 
-    glfwSwapBuffers()
+    glfw.SwapBuffers()
 
 
 
 ## --------------------------------------------------------------------------------
 
 proc Run() =
-    
+
     while running:
 
         Update()
 
         Render()
 
-        running = glfwGetKey(GLFW_KEY_ESC) == GLFW_RELEASE and 
-                  glfwGetWindowParam(GLFW_OPENED) == GL_TRUE
+        running = glfw.GetKey(GLFW_KEY_ESC) == GLFW_RELEASE and
+                  glfw.GetWindowParam(GLFW_OPENED) == GL_TRUE
 
 
 ## ==============================================================================
