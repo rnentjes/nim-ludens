@@ -9,10 +9,17 @@ type
     running: bool
     startTime: cdouble
     window: glfw.Window
+    title*: string
 
 var
   #global
   globalGame: Game
+
+proc create*(title: string = "Ludens", startScreen: Screen): Game =
+  result = Game()
+  result.running = false
+  result.title = title
+  result.gameScreen = startScreen
 
 proc Resize(window: glfw.Window; width, height: cint) {.cdecl.} =
     #windowW = float32(width)
@@ -40,8 +47,8 @@ proc Initialize(game: Game) =
     # GLFW_WINDOW or GLFW_FULLSCREEN
     var monitor = glfw.GetPrimaryMonitor();
     var videoMode = glfw.GetVideoMode(monitor);
-    game.window =  glfw.CreateWindow(cint(800), cint(600), "TEST", nil, nil)
-    #window =  glfw.CreateWindow(videoMode.width, videoMode.height, "TEST", monitor, nil)
+    game.window =  glfw.CreateWindow(cint(800), cint(600), game.title, nil, nil)
+    #window =  glfw.CreateWindow(videoMode.width, videoMode.height, game.title, monitor, nil)
 
     glfw.MakeContextCurrent(game.window)
 
@@ -56,6 +63,7 @@ proc Initialize(game: Game) =
 proc SetScreen*(game: Game, gameScreen: Screen) =
   game.gameScreen.Dispose
   game.gameScreen = gameScreen
+  game.gameScreen.Init
 
 proc Render*(game: Game, delta: float32) =
   game.gameScreen.Render(delta)
@@ -71,5 +79,12 @@ proc Run*(game: Game) =
 
   while(game.running):
     # game loop
+    glfw.PollEvents()
+
     game.Render(0.16)
     glfw.SwapBuffers(game.window)
+
+    game.running = game.running and
+                   (glfw.GetKey(game.window, glfw.KEY_ESCAPE) != glfw.PRESS) and
+                   glfw.windowShouldClose(game.window) != gl.GL_TRUE
+

@@ -2,26 +2,15 @@ import screen
 import game
 import opengl as gl
 
-#
-
-type
-  MyScreen* = ref object of Screen
+import "screen/splash"
 
 #
 
-var
-  theGame: Game
-
-#
-
-method Init*(screen: MyScreen, delta: float32) =
-    gl.glClearColor(0.2,0.0,0.2,1.0)
-
-method Render*(screen: MyScreen, delta: float32) =
-    gl.glClear(GL_COLOR_BUFFER_BIT)
+#var
+#  theGame: Game
 
 ##
 
-theGame = Game(gameScreen: MyScreen())
+var theGame = game.create(startScreen = splash.create())
 #theGame.SetScreen(MyScreen())
 theGame.Run()
