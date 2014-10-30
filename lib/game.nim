@@ -28,7 +28,7 @@ proc Resize(window: glfw.Window; width, height: cint) {.cdecl.} =
     #resized = true
     echo("Resize: ", intToStr(width), ", ", intToStr(height))
 
-    globalGame.gameScreen.Resize(width, height)
+    #globalGame.gameScreen.Resize(width, height)
 
 proc Initialize(game: Game) =
     game.startTime = glfw.GetTime()
