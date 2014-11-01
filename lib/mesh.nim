@@ -16,6 +16,7 @@ type
     setter: UniformSetter
     attrs: seq[TMeshAttr]
     attrLocations: TTable[string, GLuint]
+    userdata: pointer
 
   PMesh* = ref TMesh
 
@@ -26,14 +27,15 @@ type
 
   PMeshAttr* = ref TMeshAttr
 
-  UniformSetter* = proc (program: PShaderProgram)
+  UniformSetter* = proc (program: PShaderProgram, userdata: pointer)
 
-proc createMesh*(program: PShaderProgram, setter: UniformSetter, drawType: GLenum, attribs: seq[TMeshAttr]) : PMesh =
+proc createMesh*(program: PShaderProgram, setter: UniformSetter, userdata: pointer, drawType: GLenum, attribs: seq[TMeshAttr]) : PMesh =
   result = new(TMesh)
 
   result.drawType = drawType
   result.program = program
   result.setter = setter
+  result.userdata = userdata
   result.attrs = attribs
   result.count = 0
   result.blockLength = 0
@@ -53,7 +55,7 @@ proc Reset*(mesh: PMesh) =
 proc Draw*(mesh: PMesh) =
   mesh.program.Begin()
 
-  mesh.setter(mesh.program)
+  mesh.setter(mesh.program, mesh.userdata)
 
   glBindBuffer(GL_ARRAY_BUFFER, mesh.vertex_vbo)
 

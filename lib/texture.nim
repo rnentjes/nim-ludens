@@ -3,18 +3,45 @@ import os
 
 import opengl as gl
 
+import matrix
+
 type
   Texture = ref object of TObject
     glid: GLuint
+    program: PShaderProgram
+    mesh: PMesh
+    pmatrix: PMatrix
+    backmatrix: PMatrix
+
 
 proc loadFile(filename: string): pointer
 proc loadRawTexture(width, height: int, data: pointer) : GLuint
+
+
+proc spriteMeshSetter(program: PShaderProgram, userdata: pointer) =
+  var txt: Texture = cast[Texture](pointer)
+
+  program.SetUniformMatrix("u_pMatrix", pmatrix.Address)
+  program.SetUniformMatrix("u_mMatrix", backmatrix.Address)
+
 
 proc createRawTexture*(file: string, width,height: int): Texture =
   result = Texture()
 
   var data = loadFile(file)
   result.glid = loadRawTexture(width, height, addr(data))
+
+
+proc dispose*(txt: Texture) =
+  gl.glDeleteTextures(1, addr(txt.glid))
+
+
+proc draw(txt: Texture, x,y,w,h: float32) =
+  discard
+
+
+proc flush() =
+  discard
 
 
 proc loadRawTexture(width, height: int, data: pointer) : GLuint =
