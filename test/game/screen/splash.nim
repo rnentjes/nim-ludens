@@ -1,5 +1,7 @@
 import screen
 import opengl as gl
+import sprites
+import texture
 
 #
 

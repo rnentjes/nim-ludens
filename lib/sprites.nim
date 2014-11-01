@@ -1,17 +1,15 @@
-import opengl
+import opengl as gl
 import mesh
 
 type
-  TSprite = object
+  Sprite = ref object of TObject
     x: float32
     y: float32
     texture: GLuint
 
   TSpriteBatch = object
-    sprites: seq[TSprite]
+    sprites: seq[Sprite]
     count: GLsizei
 
 proc createSpriteBatch* =
   discard
-
-  

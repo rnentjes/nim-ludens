@@ -75,7 +75,6 @@ proc Run*(game: Game) =
   game.running = true
 
   game.Initialize
-  game.gameScreen.Init
 
   while(game.running):
     # game loop
@@ -88,3 +87,5 @@ proc Run*(game: Game) =
                    (glfw.GetKey(game.window, glfw.KEY_ESCAPE) != glfw.PRESS) and
                    glfw.windowShouldClose(game.window) != gl.GL_TRUE
 
+
+  game.gameScreen.Dispose
