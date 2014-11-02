@@ -1,7 +1,6 @@
 import screen
 import game
 import opengl as gl
-import sprites as spr
 
 import "screen/splash"
 

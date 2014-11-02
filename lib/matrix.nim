@@ -46,52 +46,52 @@ proc Values*(matrix: PMatrix) : array[0..15, float32] =
 
 proc Address*(matrix: PMatrix) : ptr float =
   result = addr(matrix.matrix[0])
-        
+
 proc OrthographicProjection*(matrix: PMatrix, left: float32, right: float32, bottom: float32, top: float32, near: float32, far: float32) =
-       
+
     matrix.matrix[0] = 2.0 / (right - left)
     matrix.matrix[1] = 0.0
     matrix.matrix[2] = 0.0
     matrix.matrix[3] = 0.0
-   
+
     matrix.matrix[4] = 0.0
     matrix.matrix[5] = 2.0 / (top - bottom)
     matrix.matrix[6] = 0.0
     matrix.matrix[7] = 0.0
-   
+
     matrix.matrix[8] = 0.0
     matrix.matrix[9] = 0.0
     matrix.matrix[10] = -2.0 / (far - near)
     matrix.matrix[11] = 0.0
-   
+
     matrix.matrix[12] = (right + left) / (right - left)
     matrix.matrix[13] = (top + bottom) / (top - bottom)
     matrix.matrix[14] = (far + near) / (far - near)
     matrix.matrix[15] = 1.0
 
 proc PerspectiveProjection*(matrix: PMatrix, angle: float32, imageAspectRatio: float32, near: float32, far: float32) =
-    var 
+    var
         r = DegToRad(angle)
         f = float32(1.0'f32 / tan(r / 2.0'f32))
 
-    echo("Rad: ", r)
-    echo("Aspect: ", imageAspectRatio)
-        
+    #echo("Rad: ", r)
+    #echo("Aspect: ", imageAspectRatio)
+
     matrix.matrix[0] = f / imageAspectRatio
     matrix.matrix[1] = 0.0'f32
     matrix.matrix[2] = 0.0'f32
     matrix.matrix[3] = 0.0'f32
-   
+
     matrix.matrix[4] = 0.0'f32
     matrix.matrix[5] = f
     matrix.matrix[6] = 0.0'f32
     matrix.matrix[7] = 0.0'f32
-   
+
     matrix.matrix[8] = 0.0'f32
     matrix.matrix[9] = 0.0'f32
     matrix.matrix[10] = -(far + near) / (far - near)
     matrix.matrix[11] = -1.0'f32
-   
+
     matrix.matrix[12] = 0.0'f32
     matrix.matrix[13] = 0.0'f32
     matrix.matrix[14] = -(2.0'f32 * far * near) / (far - near)

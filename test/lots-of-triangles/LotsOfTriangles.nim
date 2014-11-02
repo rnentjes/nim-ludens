@@ -48,7 +48,7 @@ var
     shader: PShaderProgram
     mymesh: PMesh
 
-    triangles: array[0..999, TTriangle]
+    triangles: array[0..9999, TTriangle]
 
 type
     ShaderType = enum
@@ -57,10 +57,10 @@ type
 
 ## -------------------------------------------------------------------------------
 
-proc draw(triangle: TTriangle, mesh: PMesh) =
-  mesh.AddVertices( triangle.x - triangle.size, triangle.y,  -2'f32, triangle.r, triangle.g, triangle.b)
-  mesh.AddVertices( triangle.x + triangle.size / 0.5'f32, triangle.y + triangle.size,  -2'f32, triangle.r, triangle.g, triangle.b)
-  mesh.AddVertices( triangle.x + triangle.size, triangle.y,  -2'f32, triangle.r, triangle.g, triangle.b)
+proc draw(tr: TTriangle, mesh: PMesh) =
+  mesh.AddVertices( tr.x - tr.size, tr.y,  -2'f32, tr.r, tr.g, tr.b )
+  mesh.AddVertices( tr.x + tr.size / 0.5'f32, tr.y + tr.size,  -2'f32, tr.r, tr.g, tr.b )
+  mesh.AddVertices( tr.x + tr.size, tr.y,  -2'f32, tr.r, tr.g, tr.b )
 
 proc Resize(window: glfw.Window; width, height: cint) {.cdecl.} =
     windowW = float32(width)
@@ -76,7 +76,7 @@ proc InitializeGL() =
 
 ## -------------------------------------------------------------------------------
 
-proc mymeshsetter(program: PShaderProgram) =
+proc mymeshsetter(program: PShaderProgram, data: pointer) =
   program.SetUniformMatrix("u_pMatrix", pmatrix.Address)
   program.SetUniformMatrix("u_mMatrix", backmatrix.Address)
 
@@ -107,7 +107,7 @@ proc Initialize() =
 
     glfw.MakeContextCurrent(window)
 
-    glfw.SwapInterval(1)
+    glfw.SwapInterval(0)
 
     gl.loadExtensions()
 
@@ -118,7 +118,7 @@ proc Initialize() =
 
     shader = createShaderProgram("shaders/shader")
 
-    mymesh = createMesh(shader, mymeshsetter, GL_TRIANGLES,
+    mymesh = createMesh(shader, mymeshsetter, nil, GL_TRIANGLES,
         @[TMeshAttr(attribute: "a_position", numberOfElements: 3),
           TMeshAttr(attribute: "a_color", numberOfElements: 3)] )
 
@@ -133,11 +133,11 @@ proc Initialize() =
       triangles[i].x = random(2'f32) - 1'f32
       triangles[i].y = random(2'f32) - 1'f32
       triangles[i].z = random(2'f32) - 1'f32
-      triangles[i].size = 0.1'f32
+      triangles[i].size = random(0.05'f32) + 0.1'f32
       triangles[i].angle = random(2'f32 * PI)
-      triangles[i].r = random(0.25'f32) + 0.25'f32
-      triangles[i].g = random(0.25'f32) + 0.25'f32
-      triangles[i].b = random(0.25'f32) + 0.25'f32
+      triangles[i].r = random(0.75'f32) + 0.25'f32
+      triangles[i].g = random(0.75'f32) + 0.25'f32
+      triangles[i].b = random(0.75'f32) + 0.25'f32
 
 ## -------------------------------------------------------------------------------
 proc Update() =
@@ -149,7 +149,7 @@ proc Update() =
 
     if currentTime - lastFPSTime > 1.0:
         frameRate = int(float(frameCount) / (currentTime - lastFPSTime))
-        #echo("FPS: $1" % intToStr(frameRate))
+        echo("FPS: $1" % intToStr(frameRate))
 
         lastFPSTime = currentTime
         frameCount = 0
@@ -194,6 +194,7 @@ proc Render() =
 
     #glFlush()
     glfw.SwapBuffers(window)
+
 
 ## --------------------------------------------------------------------------------
 
