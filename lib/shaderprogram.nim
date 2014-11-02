@@ -19,8 +19,8 @@ proc CreateAndCompileShader(shaderType: ShaderType, source: string ): TGLuint
 proc createShaderProgram*(name: string) : PShaderProgram =
   result = new(TShaderProgram)
 
-  result.vshaderID = LoadShader(ShaderType.VertexShader, "shaders/" & name & ".vert")
-  result.fshaderID = LoadShader(ShaderType.FragmentShader, "shaders/" & name & ".frag")
+  result.vshaderID = LoadShader(ShaderType.VertexShader, name & ".vert")
+  result.fshaderID = LoadShader(ShaderType.FragmentShader, name & ".frag")
 
   if cast[int](result.vshaderID) == -1 or cast[int](result.fshaderID) == -1:
     quit("Error compiling shaders! Can't get shader handles!")
