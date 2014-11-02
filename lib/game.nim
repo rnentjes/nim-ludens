@@ -1,7 +1,10 @@
 import src/glfw3 as glfw
 import opengl as gl
-import screen
+import IL, ILU
 import strutils
+
+import screen
+import matrix
 
 type
   Game* = ref object of TObject
@@ -12,35 +15,52 @@ type
     title*: string
     lastTime, currentTime, lastFPSTime: float32
     frameCount: int
+    width, height: float32
+    projectionmatrix*: PMatrix
+
 
 var
   #global
-  globalGame: Game
+  globalGame*: Game
 
+
+proc Dispose(game: Game)
 
 proc create*(title: string = "Ludens", startScreen: Screen): Game =
-  result = Game()
-  result.running = false
-  result.title = title
-  result.gameScreen = startScreen
-  result.lastTime = glfw.getTime()
-  result.currentTime = glfw.getTime()
-  result.lastFPSTime = 0
-  result.frameCount = 0
+  if globalGame != nil:
+    globalGame.Dispose()
+
+  globalGame = Game()
+  globalGame.running = false
+  globalGame.title = title
+  globalGame.gameScreen = startScreen
+  globalGame.lastTime = glfw.getTime()
+  globalGame.currentTime = glfw.getTime()
+  globalGame.lastFPSTime = 0
+  globalGame.frameCount = 0
+  globalGame.projectionmatrix = createMatrix()
+
+  result = globalGame
 
 
 proc Resize(window: glfw.Window; width, height: cint) {.cdecl.} =
-    #windowW = float32(width)
-    #windowH = float32(height)
+  globalGame.width = float32(width)
+  globalGame.height = float32(height)
 
-    #resized = true
-    echo("Resize: ", intToStr(width), ", ", intToStr(height))
+  #resized = true
+  echo("Resize: ", intToStr(width), ", ", intToStr(height))
 
-    #globalGame.gameScreen.Resize(width, height)
+  globalGame.gameScreen.Resize(width, height)
+
+  globalGame.projectionmatrix.PerspectiveProjection(75.0'f32, globalGame.width / globalGame.height, 0.1'f32, 30.0'f32)
+  gl.glViewport(0, 0, width, height)
 
 
 proc Initialize(game: Game) =
     game.startTime = glfw.GetTime()
+
+    ilInit()
+    #iluInit()
 
     if glfw.Init() == 0:
         write(stdout, "Could not initialize GLFW! \n")
@@ -65,6 +85,7 @@ proc Initialize(game: Game) =
 
     gl.loadExtensions()
 
+    Resize(game.window, 800, 600)
     game.gameScreen.Init
 
     discard glfw.SetWindowSizeCallback(game.window, Resize)
@@ -91,21 +112,26 @@ proc Update*(game: Game) =
       game.frameCount = 0
 
   game.frameCount += 1
-  game.gameScreen.Update(0.02) #frameDelta)
+  game.gameScreen.Update(frameDelta)
 
 
 proc Render*(game: Game) =
   game.gameScreen.Render()
 
-  GC_step(1000)
+  #GC_step(1000)
 
 
 proc Stop*(game: Game) =
   game.running = false
 
 
+proc Dispose(game: Game) =
+  game.Stop()
+  game.gameScreen.Dispose()
+
+
 proc Run*(game: Game) =
-  GC_disable()
+  #GC_disable()
   game.running = true
 
   game.Initialize
@@ -121,6 +147,5 @@ proc Run*(game: Game) =
     game.running = game.running and
                    (glfw.GetKey(game.window, glfw.KEY_ESCAPE) != glfw.PRESS) and
                    glfw.windowShouldClose(game.window) != gl.GL_TRUE
-
 
   game.gameScreen.Dispose

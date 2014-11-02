@@ -1,8 +1,11 @@
 import streams
 import os
+import strutils
 
 import opengl as gl
+import IL, ILU
 
+import game
 import matrix
 import shaderprogram
 import mesh
@@ -12,7 +15,6 @@ type
     glid: GLuint
     program: PShaderProgram
     mesh: PMesh
-    pmatrix: PMatrix
 
 var
   program: PShaderProgram
@@ -59,13 +61,14 @@ void main() {
   """
 
 proc loadFile(filename: string): pointer
-proc loadRawTexture(width, height: int, data: pointer) : GLuint
+proc loadRawTexture(width, height: int, data: pointer, format: GLUint = GL_RGBA) : GLuint
+proc loadTexture(filename: string) : GLuint
 
 
 proc textureMeshSetter(program: PShaderProgram, userdata: pointer) =
   var txt: Texture = cast[Texture](userdata)
 
-  program.SetUniformMatrix("u_pMatrix", txt.pmatrix.Address)
+  program.SetUniformMatrix("u_pMatrix", globalGame.projectionmatrix.Address)
   program.SetUniform1i("u_texture", 0)
 
   gl.glActiveTexture(GL_TEXTURE0);
@@ -78,13 +81,9 @@ proc initTexture(): Texture =
   if program == nil:
     program = createShaderProgram(vert, frag)
 
-  result.pmatrix = createMatrix()
-
   result.mesh = createMesh(program, textureMeshSetter, cast[pointer](result), GL_TRIANGLES,
                  @[TMeshAttr(attribute: "a_position", numberOfElements: 3),
                    TMeshAttr(attribute: "a_texCoord", numberOfElements: 2) ] )
-
-  result.pmatrix.PerspectiveProjection(75.0'f32, 800'f32 / 600'f32, 0.1'f32, 30.0'f32)
 
 
 proc createRawTexture*(file: string, width,height: int): Texture =
@@ -93,6 +92,12 @@ proc createRawTexture*(file: string, width,height: int): Texture =
   var data = loadFile(file)
   result.glid = loadRawTexture(width, height, data)
   dealloc(data)
+
+
+proc createTexture*(file: string): Texture =
+  result = initTexture()
+
+  result.glid = loadTexture(file)
 
 
 proc dispose*(txt: Texture) =
@@ -117,13 +122,46 @@ proc flush*(txt: Texture) =
   txt.mesh.Draw()
 
 
-proc loadRawTexture(width, height: int, data: pointer) : GLuint =
+proc loadTexture(filename: string) : GLuint =
+  var
+      imageId: IlUInt
+      imageInfo: IlInfo
+      error: ILenum
+      success: bool
+
+  ilGenImages(1, addr imageID)
+  ilBindImage(imageId)
+
+  success = bool(ilLoadImage(filename))
+  if not success:
+    error = ilGetError()
+    quit("Couldn't load image: " & filename & " -> " & intToStr(int( error )), quitFailure)
+
+  iluGetImageInfo(addr imageInfo);
+  if int(imageInfo.Origin) == int(IL_ORIGIN_UPPER_LEFT):
+    discard iluFlipImage()
+  success = ilConvertImage(IL_RGBA, cIL_UNSIGNED_BYTE).BOOL
+
+  if not success:
+    quit("Couldn't convert image: " & filename, quitFailure)
+
+  var
+    width = GlSizeI(ilGetInteger(IL_IMAGE_WIDTH))
+    height = GlSizeI(ilGetInteger(IL_IMAGE_HEIGHT))
+
+  echo "width, height: " & intToStr(int(width)) & "," & intToStr(int(height))
+  result = loadRawTexture(int(width), int(height), ilGetData(), GlEnum(ilGetInteger(IL_IMAGE_FORMAT)))
+
+  ilDeleteImages(1, addr imageID)
+
+
+proc loadRawTexture(width, height: int, data: pointer, format: GLUint = GL_RGBA) : GLuint =
   gl.glGenTextures(1, addr(result))
 
   gl.glActiveTexture(GL_TEXTURE0);
   gl.glBindTexture(GL_TEXTURE_2D, result);
 
-  gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, cast[GLsizei](width), cast[GLsizei](height), 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+  gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, cast[GLsizei](width), cast[GLsizei](height), 0, format, GL_UNSIGNED_BYTE, data);
 
   gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
