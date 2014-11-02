@@ -1,3 +1,4 @@
+import src/glfw3 as glfw
 import math
 import opengl as gl
 
@@ -12,7 +13,6 @@ type
     time: float32
     x,y: float32
 
-
 ##
 
 proc create*(): SplashScreen =
@@ -25,6 +25,7 @@ method Init*(screen: SplashScreen) =
 
   screen.txt = createRawTexture("assets/images/playerhappy128_128.rgba", 128, 128)
 
+
 method Update*(screen: SplashScreen, delta: float32) =
   screen.time += delta
 
@@ -33,12 +34,15 @@ method Update*(screen: SplashScreen, delta: float32) =
 
   discard
 
+
 method Render*(screen: SplashScreen) =
   gl.glClear(GL_COLOR_BUFFER_BIT)
 
   screen.txt.draw(screen.x,screen.y,1,1)
+  screen.txt.draw(screen.x-1,screen.y,0.2,0.2)
+  screen.txt.draw(screen.x,screen.y-1,0.4,0.4)
   screen.txt.draw(-1,-1,0.5,0.5)
   screen.txt.draw(0,2,1,1)
   screen.txt.draw(-3,0,1,1)
-  screen.txt.flush()
+  screen.txt.flush()    # actual draw call
 

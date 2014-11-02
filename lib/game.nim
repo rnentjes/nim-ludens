@@ -81,15 +81,17 @@ proc Update*(game: Game) =
   var frameDelta = game.currentTime - game.lastTime
   game.lastTime = game.currentTime
 
+  #echo("DELTA: $1" % formatFloat(frameDelta, ffDefault, 9))
+
   if game.currentTime - game.lastFPSTime > 1.0:
-      var frameRate = int(float(game.frameCount) / (game.currentTime - game.lastFPSTime))
-      #echo("FPS: $1" % intToStr(frameRate))
+      var frameRate = float(game.frameCount) / (game.currentTime - game.lastFPSTime)
+      echo("FPS: $1" % formatFloat(frameRate, ffDefault, 6))
 
       game.lastFPSTime = game.currentTime
       game.frameCount = 0
 
   game.frameCount += 1
-  game.gameScreen.Update(0.0166) #frameDelta)
+  game.gameScreen.Update(0.02) #frameDelta)
 
 
 proc Render*(game: Game) =
