@@ -13,7 +13,6 @@ type
     program: PShaderProgram
     mesh: PMesh
     pmatrix: PMatrix
-    mmatrix: PMatrix
 
 var
   program: PShaderProgram
@@ -25,7 +24,6 @@ attribute vec4 a_position;
 attribute vec2 a_texCoord;
 
 uniform mat4 u_pMatrix;
-uniform mat4 u_mMatrix;
 
 varying vec2 v_texCoords;
 
@@ -39,7 +37,7 @@ mat4 translate(float x, float y, float z) {
 }
 
 void main() {
-    gl_Position =  u_pMatrix * u_mMatrix * a_position;
+    gl_Position =  u_pMatrix * a_position;
     v_texCoords = a_texCoord;
 }
   """
@@ -68,7 +66,6 @@ proc textureMeshSetter(program: PShaderProgram, userdata: pointer) =
   var txt: Texture = cast[Texture](userdata)
 
   program.SetUniformMatrix("u_pMatrix", txt.pmatrix.Address)
-  program.SetUniformMatrix("u_mMatrix", txt.mmatrix.Address)
   program.SetUniform1i("u_texture", 0)
 
   gl.glActiveTexture(GL_TEXTURE0);
@@ -81,12 +78,13 @@ proc initTexture(): Texture =
   if program == nil:
     program = createShaderProgram(vert, frag)
 
-  result.mmatrix = createMatrix()
   result.pmatrix = createMatrix()
 
   result.mesh = createMesh(program, textureMeshSetter, cast[pointer](result), GL_TRIANGLES,
                  @[TMeshAttr(attribute: "a_position", numberOfElements: 3),
                    TMeshAttr(attribute: "a_texCoord", numberOfElements: 2) ] )
+
+  result.pmatrix.PerspectiveProjection(75.0'f32, 800'f32 / 600'f32, 0.1'f32, 30.0'f32)
 
 
 proc createRawTexture*(file: string, width,height: int): Texture =
@@ -102,28 +100,21 @@ proc dispose*(txt: Texture) =
 
 
 proc draw*(txt: Texture, x,y,w,h: float32) =
+  txt.mesh.AddVertices(   x,   y,  -2'f32,  0'f32, 1'f32 )
+  txt.mesh.AddVertices( x+w,   y,  -2'f32,  1'f32, 1'f32 )
+  txt.mesh.AddVertices( x+w, y+h,  -2'f32,  1'f32, 0'f32 )
+
+  txt.mesh.AddVertices( x+w, y+h,  -2'f32,  1'f32, 0'f32 )
+  txt.mesh.AddVertices(   x, y+h,  -2'f32,  0'f32, 0'f32 )
+  txt.mesh.AddVertices(   x,   y,  -2'f32,  0'f32, 1'f32 )
+
+
+proc flush*(txt: Texture) =
   gl.glEnable(GL_TEXTURE_2D)
   gl.glEnable(GL_BLEND)
   gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-  txt.pmatrix.PerspectiveProjection(75.0'f32, 800'f32 / 600'f32, 0.1'f32, 30.0'f32)
-  #txt.pmatrix.Rotatez(angle)
-
-  txt.mesh.AddVertices( -1'f32,  -1'f32,  -2'f32,  0'f32, 1'f32 )
-  txt.mesh.AddVertices(  1'f32,  -1'f32,  -2'f32,  1'f32, 1'f32 )
-  txt.mesh.AddVertices(  1'f32,   1'f32,  -2'f32,  1'f32, 0'f32 )
-
-  txt.mesh.AddVertices(  1'f32,   1'f32,  -2'f32,  1'f32, 0'f32 )
-  txt.mesh.AddVertices( -1'f32,   1'f32,  -2'f32,  0'f32, 0'f32 )
-  txt.mesh.AddVertices( -1'f32,  -1'f32,  -2'f32,  0'f32, 1'f32 )
-
   txt.mesh.Draw()
-
-  discard
-
-
-proc flush() =
-  discard
 
 
 proc loadRawTexture(width, height: int, data: pointer) : GLuint =

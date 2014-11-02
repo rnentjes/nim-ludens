@@ -13,6 +13,5 @@ var
 
 
 theGame = game.create(startScreen = splash.create())
-#theGame.SetScreen(MyScreen())
 
 theGame.Run()

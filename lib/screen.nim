@@ -9,7 +9,10 @@ method Init*(screen: Screen) =
 method Resize*(screen: Screen, width: int, height: int) =
   echo "Resize Screen"
 
-method Render*(screen: Screen, delta: float32) =
+method Update*(screen: Screen, delta: float32) =
+  discard
+
+method Render*(screen: Screen) =
   discard
 
 method Dispose*(screen: Screen) =
