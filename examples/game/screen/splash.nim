@@ -43,6 +43,7 @@ method Render*(screen: SplashScreen) =
   screen.txt.draw(-1,-1,0.5,0.5)
   screen.txt.draw(0,2,1,1)
   screen.txt.draw(-3,0,1,1)
+
   screen.txt.flush()    # actual draw call
   screen.txt2.flush()    # actual draw call
 

@@ -8,5 +8,5 @@ Dependencies:
   
 Ubuntu packages:
 
--> glfw3
+-> glfw3(?)
 -> libdevil-dev
