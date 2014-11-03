@@ -2,6 +2,7 @@
 
 type
   Screen* = ref object of TObject
+    game: Game
 
 method Init*(screen: Screen) =
   discard
@@ -16,5 +17,14 @@ method Render*(screen: Screen) =
   discard
 
 method Dispose*(screen: Screen) =
+  discard
+
+method KeyDown*(screen: Screen, key, scancode, mods: int) =
+  discard
+
+method KeyUp*(screen: Screen, key, scancode, mods: int) =
+  discard
+
+method KeyRepeat*(screen: Screen, key, scancode, mods: int) =
   discard
 

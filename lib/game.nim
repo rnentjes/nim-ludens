@@ -43,6 +43,17 @@ proc create*(title: string = "Ludens", startScreen: Screen): Game =
   result = globalGame
 
 
+proc KeyInput(window: glfw.Window, key, scancode, action, mods: cint) {.cdecl.} =
+  echo "key: " & intToStr(key) & ", " & intToStr(scancode) & ", " & intToStr(action)
+
+  if action == PRESS:
+    globalGame.gameScreen.KeyDown(key, scancode, mods)
+  elif action == RELEASE:
+    globalGame.gameScreen.KeyUp(key, scancode, mods)
+  elif action == REPEAT:
+    globalGame.gameScreen.KeyRepeat(key, scancode, mods)
+
+
 proc Resize(window: glfw.Window; width, height: cint) {.cdecl.} =
   globalGame.width = float32(width)
   globalGame.height = float32(height)
@@ -89,9 +100,11 @@ proc Initialize(game: Game) =
     game.gameScreen.Init
 
     discard glfw.SetWindowSizeCallback(game.window, Resize)
+    discard glfw.SetKeyCallback(game.window, KeyInput)
 
 
 proc SetScreen*(game: Game, gameScreen: Screen) =
+  echo "Set screen"
   game.gameScreen.Dispose
   game.gameScreen = gameScreen
   game.gameScreen.Init
