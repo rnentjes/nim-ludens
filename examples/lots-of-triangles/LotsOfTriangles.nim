@@ -214,6 +214,7 @@ proc Run() =
 
           glViewport(0, 0, cast[GLint](int(windowW)), cast[GLint](int(windowH)))
           pmatrix.PerspectiveProjection(75.0'f32, windowW / windowH, 0.1'f32, 30.0'f32)
+          pmatrix.OrthographicProjection(-4'f32, 4'f32, -4'f32, 4'f32, -0.1'f32, -30.0'f32)
 
         Update()
 

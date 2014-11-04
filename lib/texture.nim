@@ -105,13 +105,13 @@ proc dispose*(txt: Texture) =
 
 
 proc draw*(txt: Texture, x,y,w,h: float32) =
-  txt.mesh.AddVertices(   x,   y,  -2'f32,  0'f32, 1'f32 )
-  txt.mesh.AddVertices( x+w,   y,  -2'f32,  1'f32, 1'f32 )
-  txt.mesh.AddVertices( x+w, y+h,  -2'f32,  1'f32, 0'f32 )
+  txt.mesh.AddVertices(   x,   y,  -4'f32,  0'f32, 1'f32 )
+  txt.mesh.AddVertices( x+w,   y,  -4'f32,  1'f32, 1'f32 )
+  txt.mesh.AddVertices( x+w, y+h,  -4'f32,  1'f32, 0'f32 )
 
-  txt.mesh.AddVertices( x+w, y+h,  -2'f32,  1'f32, 0'f32 )
-  txt.mesh.AddVertices(   x, y+h,  -2'f32,  0'f32, 0'f32 )
-  txt.mesh.AddVertices(   x,   y,  -2'f32,  0'f32, 1'f32 )
+  txt.mesh.AddVertices( x+w, y+h,  -4'f32,  1'f32, 0'f32 )
+  txt.mesh.AddVertices(   x, y+h,  -4'f32,  0'f32, 0'f32 )
+  txt.mesh.AddVertices(   x,   y,  -4'f32,  0'f32, 1'f32 )
 
 
 proc flush*(txt: Texture) =

@@ -7,6 +7,8 @@ import screen
 import matrix
 
 type
+  Projection = enum
+    prProjection, prWidth, prHeight
   Game* = ref object of TObject
     gameScreen*: Screen
     running: bool
@@ -15,8 +17,11 @@ type
     title*: string
     lastTime, currentTime, lastFPSTime: float32
     frameCount: int
+    projection: Projection
+    viewportWidth, viewportHeight: cint
     width, height: float32
     projectionmatrix*: PMatrix
+    fov, near, far: float32
 
 
 var
@@ -25,6 +30,28 @@ var
 
 
 proc Dispose(game: Game)
+proc Initialize(game: Game)
+
+
+proc Resize(window: glfw.Window; width, height: cint) {.cdecl.} =
+  globalGame.viewportWidth = width
+  globalGame.viewportHeight = height
+
+  echo("Resize: ", intToStr(width), ", ", intToStr(height))
+
+  var aspect = float32(globalGame.viewportWidth) / float32(globalGame.viewportHeight)
+  case globalGame.projection:
+    of prProjection:
+      globalGame.projectionmatrix.PerspectiveProjection(75.0'f32, aspect, globalGame.near, globalGame.far)
+    of prWidth:
+      globalGame.height = globalGame.width / aspect
+      globalGame.projectionmatrix.OrthographicProjection(-globalGame.width / 2, globalGame.width / 2, -globalGame.height / 2, globalGame.height / 2, -1'f32, -25'f32)
+    of prHeight:
+      globalGame.width = globalGame.height * aspect
+      globalGame.projectionmatrix.OrthographicProjection(-globalGame.width / 2, globalGame.width / 2, (-globalGame.height / 2), globalGame.height / 2, -1'f32, -25'f32)
+
+  gl.glViewport(0, 0, width, height)
+
 
 proc create*(title: string = "Ludens", startScreen: Screen): Game =
   if globalGame != nil:
@@ -38,7 +65,15 @@ proc create*(title: string = "Ludens", startScreen: Screen): Game =
   globalGame.currentTime = glfw.getTime()
   globalGame.lastFPSTime = 0
   globalGame.frameCount = 0
+  globalGame.viewportWidth = 800
+  globalGame.viewportHeight = 600
+  globalGame.projection = prProjection
   globalGame.projectionmatrix = createMatrix()
+  globalGame.fov = 75'f32
+  globalGame.near = 1'f32
+  globalGame.far = 25'f32
+
+  globalGame.Initialize()
 
   result = globalGame
 
@@ -54,18 +89,36 @@ proc KeyInput(window: glfw.Window, key, scancode, action, mods: cint) {.cdecl.} 
     globalGame.gameScreen.KeyRepeat(key, scancode, mods)
 
 
-proc Resize(window: glfw.Window; width, height: cint) {.cdecl.} =
-  globalGame.width = float32(width)
-  globalGame.height = float32(height)
 
-  #resized = true
-  echo("Resize: ", intToStr(width), ", ", intToStr(height))
 
-  globalGame.gameScreen.Resize(width, height)
+proc Perspective*(game: Game, fov, near, far: float32) =
+  game.fov = fov
+  game.near = near
+  game.far = far
+  game.projection = prProjection
 
-  globalGame.projectionmatrix.PerspectiveProjection(75.0'f32, globalGame.width / globalGame.height, 0.1'f32, 30.0'f32)
-  gl.glViewport(0, 0, width, height)
+  Resize(game.window, game.viewportWidth, game.viewportHeight)
 
+
+proc SetOrthoWidth*(game: Game, width: float32) =
+  game.width = width
+  game.projection = prWidth
+
+  Resize(game.window, game.viewportWidth, game.viewportHeight)
+
+
+proc SetOrthoHeight*(game: Game, height: float32) =
+  game.height = height
+  game.projection = prHeight
+
+  Resize(game.window, game.viewportWidth, game.viewportHeight)
+
+
+proc GetOrthoWidth*(game: Game) : float32 =
+  result = game.width
+
+proc GetOrthoHeight*(game: Game) : float32 =
+  result = game.height
 
 proc Initialize(game: Game) =
     game.startTime = glfw.GetTime()
@@ -146,8 +199,6 @@ proc Dispose(game: Game) =
 proc Run*(game: Game) =
   #GC_disable()
   game.running = true
-
-  game.Initialize
 
   while(game.running):
     # game loop
