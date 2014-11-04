@@ -77,7 +77,7 @@ proc Initialize(game: Game) =
         write(stdout, "Could not initialize GLFW! \n")
 
     glfw.WindowHint(RESIZABLE, GL_TRUE)
-    #glfw.WindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API)
+    #glfw.WindowHint(CLIENT_API, OPENGL_ES_API)
     glfw.WindowHint(CONTEXT_VERSION_MAJOR, 2)
     glfw.WindowHint(CONTEXT_VERSION_MINOR, 0)
     glfw.WindowHint(OPENGL_DEBUG_CONTEXT, GL_TRUE)

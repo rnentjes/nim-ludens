@@ -2,7 +2,6 @@
 
 type
   Screen* = ref object of TObject
-    game: Game
 
 method Init*(screen: Screen) =
   discard

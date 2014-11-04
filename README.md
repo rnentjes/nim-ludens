@@ -1,12 +1,12 @@
 Little Nim game library
 
-Dependencies:
+Nimble Dependencies:
 
   - opengl
-  - glfw
+  - nimrod-glfw
   - DevIL
   
 Ubuntu packages:
 
--> glfw3(?)
+-> libglfw3
 -> libdevil-dev
