@@ -1,4 +1,4 @@
-import src/glfw3 as glfw
+import csfml as sfml
 import opengl as gl
 import IL, ILU
 import strutils
@@ -13,8 +13,9 @@ type
     gameScreen*: Screen
     running: bool
     startTime: cdouble
-    window: glfw.Window
+    window: sfml.PRenderWindow
     title*: string
+    clock: PClock
     lastTime, currentTime, lastFPSTime: float32
     frameCount: int
     projection: Projection
@@ -22,6 +23,7 @@ type
     width, height: float32
     projectionmatrix*: PMatrix
     fov, near, far: float32
+    clearColor: TColor
 
 
 var
@@ -33,10 +35,50 @@ proc Dispose(game: Game)
 proc Initialize(game: Game)
 
 
-proc Resize(window: glfw.Window; width, height: cint) {.cdecl.} =
+
+
+proc create*(title: string = "Ludens", startScreen: Screen): Game =
+  if globalGame != nil:
+    globalGame.Dispose()
+
+  globalGame = Game()
+  globalGame.clock = newClock()
+  globalGame.running = false
+  globalGame.title = title
+  globalGame.gameScreen = startScreen
+  globalGame.lastTime = float32(sfml.getElapsedTime(globalGame.clock).microseconds) / 1000000'f32
+  globalGame.currentTime = float(sfml.getElapsedTime(globalGame.clock).microseconds) / 1000000'f32
+  globalGame.lastFPSTime = 0
+  globalGame.frameCount = 0
+  globalGame.viewportWidth = 800
+  globalGame.viewportHeight = 600
+  globalGame.projection = prProjection
+  globalGame.projectionmatrix = createMatrix()
+  globalGame.fov = 75'f32
+  globalGame.near = 1'f32
+  globalGame.far = 25'f32
+  globalGame.clearColor = sfml.color(20, 0, 20)
+
+  globalGame.Initialize()
+
+  result = globalGame
+
+
+#proc KeyInput(game: Game, key, scancode, action, mods: cint) {.cdecl.} =
+#  echo "key: " & intToStr(key) & ", " & intToStr(scancode) & ", " & intToStr(action)
+#
+#  if action == PRESS:
+#    globalGame.gameScreen.KeyDown(key, scancode, mods)
+#  elif action == RELEASE:
+#    globalGame.gameScreen.KeyUp(key, scancode, mods)
+#  elif action == REPEAT:
+#    globalGame.gameScreen.KeyRepeat(key, scancode, mods)
+
+proc Resize(game: Game, width, height: cint) =
   globalGame.viewportWidth = width
   globalGame.viewportHeight = height
 
+  globalGame.window.setSize(vec2i(width, height))
   echo("Resize: ", intToStr(width), ", ", intToStr(height))
 
   var aspect = float32(globalGame.viewportWidth) / float32(globalGame.viewportHeight)
@@ -53,43 +95,6 @@ proc Resize(window: glfw.Window; width, height: cint) {.cdecl.} =
   gl.glViewport(0, 0, width, height)
 
 
-proc create*(title: string = "Ludens", startScreen: Screen): Game =
-  if globalGame != nil:
-    globalGame.Dispose()
-
-  globalGame = Game()
-  globalGame.running = false
-  globalGame.title = title
-  globalGame.gameScreen = startScreen
-  globalGame.lastTime = glfw.getTime()
-  globalGame.currentTime = glfw.getTime()
-  globalGame.lastFPSTime = 0
-  globalGame.frameCount = 0
-  globalGame.viewportWidth = 800
-  globalGame.viewportHeight = 600
-  globalGame.projection = prProjection
-  globalGame.projectionmatrix = createMatrix()
-  globalGame.fov = 75'f32
-  globalGame.near = 1'f32
-  globalGame.far = 25'f32
-
-  globalGame.Initialize()
-
-  result = globalGame
-
-
-proc KeyInput(window: glfw.Window, key, scancode, action, mods: cint) {.cdecl.} =
-  echo "key: " & intToStr(key) & ", " & intToStr(scancode) & ", " & intToStr(action)
-
-  if action == PRESS:
-    globalGame.gameScreen.KeyDown(key, scancode, mods)
-  elif action == RELEASE:
-    globalGame.gameScreen.KeyUp(key, scancode, mods)
-  elif action == REPEAT:
-    globalGame.gameScreen.KeyRepeat(key, scancode, mods)
-
-
-
 
 proc Perspective*(game: Game, fov, near, far: float32) =
   game.fov = fov
@@ -97,21 +102,21 @@ proc Perspective*(game: Game, fov, near, far: float32) =
   game.far = far
   game.projection = prProjection
 
-  Resize(game.window, game.viewportWidth, game.viewportHeight)
+  game.Resize(game.viewportWidth, game.viewportHeight)
 
 
 proc SetOrthoWidth*(game: Game, width: float32) =
   game.width = width
   game.projection = prWidth
 
-  Resize(game.window, game.viewportWidth, game.viewportHeight)
+  game.Resize(game.viewportWidth, game.viewportHeight)
 
 
 proc SetOrthoHeight*(game: Game, height: float32) =
   game.height = height
   game.projection = prHeight
 
-  Resize(game.window, game.viewportWidth, game.viewportHeight)
+  game.Resize(game.viewportWidth, game.viewportHeight)
 
 
 proc GetOrthoWidth*(game: Game) : float32 =
@@ -121,39 +126,16 @@ proc GetOrthoHeight*(game: Game) : float32 =
   result = game.height
 
 proc Initialize(game: Game) =
-    game.startTime = glfw.GetTime()
+    var contextSettings = newContextSettings(32, 0, 0, 0, 0)
+    game.window = newRenderWindow(videoMode(800, 600, 32), "SFML Example", sfDefaultStyle, addr(contextSettings))
+    game.window.setFramerateLimit(200)
 
-    ilInit()
-    #iluInit()
-
-    if glfw.Init() == 0:
-        write(stdout, "Could not initialize GLFW! \n")
-
-    glfw.WindowHint(RESIZABLE, GL_TRUE)
-    #glfw.WindowHint(CLIENT_API, OPENGL_ES_API)
-    glfw.WindowHint(CONTEXT_VERSION_MAJOR, 2)
-    glfw.WindowHint(CONTEXT_VERSION_MINOR, 0)
-    glfw.WindowHint(OPENGL_DEBUG_CONTEXT, GL_TRUE)
-
-    #glfw.OpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE)
-
-    # GLFW_WINDOW or GLFW_FULLSCREEN
-    var monitor = glfw.GetPrimaryMonitor();
-    var videoMode = glfw.GetVideoMode(monitor);
-    game.window =  glfw.CreateWindow(cint(800), cint(600), game.title, nil, nil)
-    #game.window =  glfw.CreateWindow(videoMode.width, videoMode.height, game.title, monitor, nil)
-
-    glfw.MakeContextCurrent(game.window)
-
-    glfw.SwapInterval(1)
+    game.startTime = float32(sfml.getElapsedTime(game.clock).microseconds) / 1000000'f32
 
     gl.loadExtensions()
 
-    Resize(game.window, 800, 600)
+    game.Resize(800, 600)
     game.gameScreen.Init
-
-    discard glfw.SetWindowSizeCallback(game.window, Resize)
-    discard glfw.SetKeyCallback(game.window, KeyInput)
 
 
 proc SetScreen*(game: Game, gameScreen: Screen) =
@@ -163,8 +145,13 @@ proc SetScreen*(game: Game, gameScreen: Screen) =
   game.gameScreen.Init
 
 
+proc Text*(game: Game, text: Ptext) =
+  game.window.resetGlStates()
+  game.window.draw(text)
+
+
 proc Update*(game: Game) =
-  game.currentTime = glfw.GetTime()
+  game.currentTime = float32(sfml.getElapsedTime(game.clock).microseconds) / 1000000'f32
   var frameDelta = game.currentTime - game.lastTime
   game.lastTime = game.currentTime
 
@@ -197,19 +184,27 @@ proc Dispose(game: Game) =
 
 
 proc Run*(game: Game) =
+  var evt: TEvent
   #GC_disable()
   game.running = true
 
-  while(game.running):
-    # game loop
-    glfw.PollEvents()
+  while game.running:
+    while game.window.pollEvent(evt):
+      case evt.kind
+      of evtclosed:
+        game.running = false
+      of evtresized:
+        game.Resize(evt.size.width, evt.size.height)
+      of EvtKeyReleased:
+        game.gameScreen.KeyUp(evt.key.code)
+      else: discard
 
     game.Update()
-    game.Render()
-    glfw.SwapBuffers(game.window)
 
-    game.running = game.running and
-                   (glfw.GetKey(game.window, glfw.KEY_ESCAPE) != glfw.PRESS) and
-                   glfw.windowShouldClose(game.window) != gl.GL_TRUE
+    game.window.clear(game.clearColor)
+    game.Render()
+
+    game.window.display()
+
 
   game.gameScreen.Dispose

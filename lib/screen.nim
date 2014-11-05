@@ -1,3 +1,5 @@
+import csfml
+
 # Screen
 
 type
@@ -15,12 +17,12 @@ method Render*(screen: Screen) =
 method Dispose*(screen: Screen) =
   discard
 
-method KeyDown*(screen: Screen, key, scancode, mods: int) =
+method KeyDown*(screen: Screen, key: TKeyCode) =
   discard
 
-method KeyUp*(screen: Screen, key, scancode, mods: int) =
+method KeyUp*(screen: Screen, key: TKeyCode) =
   discard
 
-method KeyRepeat*(screen: Screen, key, scancode, mods: int) =
+method KeyRepeat*(screen: Screen, key: TKeyCode) =
   discard
 

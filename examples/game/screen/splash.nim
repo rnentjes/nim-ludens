@@ -1,6 +1,8 @@
-import src/glfw3 as glfw
 import math
 import opengl as gl
+import strutils
+import csfml as sfml
+import csfml_audio as audio
 
 import screen
 import texture
@@ -13,8 +15,13 @@ type
     txt, txt2: Texture
     time: float32
     x,y: float32
+    font: PFont
+    text1: PText
+    snd: PSoundBuffer
 
   SplashScreen2* = ref object of Screen
+    font: PFont
+    text1: PText
 
 ##
 
@@ -28,8 +35,12 @@ method Init*(screen: SplashScreen) =
   echo "set clear color"
   gl.glClearColor(0.2,0.0,0.2,1.0)
 
-  screen.txt = createRawTexture("assets/images/playerhappy128_128.rgba", 128, 128)
+  screen.txt = createTexture("assets/images/playerunhappy.png")
   screen.txt2 = createTexture("assets/images/yellow_star.png")
+  screen.font = newFont("assets/fonts/SHOWG.TTF")
+  screen.text1 = newText("Hello World!", screen.font, 48)
+
+  screen.snd = newSoundBuffer("assets/sounds/Powerup16.mp3")
 
 
 method Update*(screen: SplashScreen, delta: float32) =
@@ -40,7 +51,7 @@ method Update*(screen: SplashScreen, delta: float32) =
 
 
 method Render*(screen: SplashScreen) =
-  gl.glClear(GL_COLOR_BUFFER_BIT)
+  globalGame.Text(screen.text1)
 
   screen.txt.draw(screen.x,screen.y,1,1)
   screen.txt.draw(screen.x-1,screen.y,1,1)
@@ -53,8 +64,14 @@ method Render*(screen: SplashScreen) =
   screen.txt.flush()    # actual draw call
 
 
-method KeyUp*(screen: SplashScreen, key, scancode, mods: int) =
-  globalGame.SetScreen(create2())
+
+method KeyUp*(screen: SplashScreen, key: TKeyCode) =
+  if key == sfml.KeyP:
+    var sound = newSound()
+    sound.setBuffer(screen.snd)
+    sound.play()
+  else:
+    globalGame.SetScreen(create2())
 
 ##############################################3
 
@@ -63,7 +80,8 @@ proc create2*(): SplashScreen2 =
 
 
 method Init*(screen: SplashScreen2) =
-  gl.glClearColor(0.2,1.0,0.2,1.0)
+  screen.font = newFont("assets/fonts/SHOWG.TTF")
+  screen.text1 = newText("Hello World!", screen.font, 48)
 
 
 method Update*(screen: SplashScreen2, delta: float32) =
@@ -71,10 +89,10 @@ method Update*(screen: SplashScreen2, delta: float32) =
 
 
 method Render*(screen: SplashScreen2) =
-  gl.glClear(GL_COLOR_BUFFER_BIT)
+  globalGame.Text(screen.text1)
 
 
-method KeyUp*(screen: SplashScreen2, key, scancode, mods: int) =
+method KeyUp*(screen: SplashScreen2, key: TKeyCode) =
   globalGame.SetScreen(create())
 
 
