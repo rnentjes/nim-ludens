@@ -95,7 +95,6 @@ method Update*(screen: GameScreen, delta: float32) =
   screen.playerX = min(screen.playerX, 250)
 
 
-
 method Render*(screen: GameScreen) =
   screen.text1.setColor(color(255, 100, 0, screen.text1Alpha))
   screen.DrawText(screen.text1)
@@ -118,3 +117,4 @@ method KeyDown*(screen: GameScreen, key: TKeyCode) =
     # new bullet
     screen.bullets[screen.nextBullet] = Sprite(x: screen.playerX, y: -360, dx: 0, dy: 750)
     screen.nextBullet += 1
+
