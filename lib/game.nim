@@ -19,7 +19,7 @@ type
     lastTime, currentTime, lastFPSTime: float32
     frameCount: int
     projection: Projection
-    viewportWidth, viewportHeight: cint
+    viewportWidth, viewportHeight: int
     width, height: float32
     projectionmatrix*: PMatrix
     fov, near, far: float32
@@ -34,10 +34,10 @@ var
 
 proc Dispose(game: Game)
 proc Initialize(game: Game)
-proc Resize(game: Game, width, height: cint)
+proc Resize(game: Game, width, height: int)
 proc SetScreen*(game: Game, gameScreen: Screen)
 
-proc create*(title: string = "Ludens", startScreen: Screen): Game =
+proc create*(title: string = "Ludens", startScreen: Screen, width: int = 800, height: int = 600): Game =
   if globalGame != nil:
     globalGame.Dispose()
 
@@ -56,8 +56,8 @@ proc create*(title: string = "Ludens", startScreen: Screen): Game =
   globalGame.near = 1'f32
   globalGame.far = 25'f32
   globalGame.clearColor = sfml.color(20, 0, 20)
-  globalGame.viewportWidth = 800
-  globalGame.viewportHeight = 600
+  globalGame.viewportWidth = width
+  globalGame.viewportHeight = height
 
   globalGame.Initialize()
   globalGame.Resize(globalGame.viewportWidth, globalGame.viewportHeight)
@@ -75,7 +75,7 @@ proc create*(title: string = "Ludens", startScreen: Screen): Game =
 #  elif action == REPEAT:
 #    globalGame.gameScreen.KeyRepeat(key, scancode, mods)
 
-proc Resize(game: Game, width, height: cint) =
+proc Resize(game: Game, width, height: int) =
   game.viewportWidth = width
   game.viewportHeight = height
 
@@ -93,7 +93,7 @@ proc Resize(game: Game, width, height: cint) =
       game.width = globalGame.height * aspect
       game.projectionmatrix.OrthographicProjection(-globalGame.width / 2, globalGame.width / 2, -globalGame.height / 2, globalGame.height / 2, -1'f32, -25'f32)
 
-  gl.glViewport(0, 0, width, height)
+  gl.glViewport(0, 0, cint(width), cint(height))
   game.gameScreen.textview = viewFromRect(floatRect(-globalGame.width / 2, -globalGame.height / 2, globalGame.width, globalGame.height))
   # 0 , 0, cfloat(width), cfloat(height)))
 
@@ -130,8 +130,8 @@ proc GetOrthoHeight*(game: Game) : float32 =
 
 proc Initialize(game: Game) =
     var contextSettings = newContextSettings(32, 0, 0, 2, 0)
-    game.window = newRenderWindow(videoMode(game.viewportWidth, game.viewportHeight, 32), "SFML Example", sfDefaultStyle, addr(contextSettings))
-    game.window.setFramerateLimit(240)
+    game.window = newRenderWindow(videoMode(cint(game.viewportWidth), cint(game.viewportHeight), 32), "SFML Example", sfDefaultStyle, addr(contextSettings))
+    #game.window.setFramerateLimit(240)
 
     game.startTime = float32(sfml.getElapsedTime(game.clock).microseconds) / 1000000'f32
 

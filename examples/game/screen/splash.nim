@@ -89,7 +89,7 @@ proc create2*(): SplashScreen2 =
 
 method Init*(screen: SplashScreen2) =
   screen.font = newFont("assets/fonts/SHOWG.TTF")
-  screen.text1 = newText("Hello World!", screen.font, 48)
+  screen.text1 = newText("Screen 2!", screen.font, 128)
 
 
 method Update*(screen: SplashScreen2, delta: float32) =
@@ -97,6 +97,8 @@ method Update*(screen: SplashScreen2, delta: float32) =
 
 
 method Render*(screen: SplashScreen2) =
+  screen.text1.setPosition(vec2f(-300, -500))
+  screen.text1.setColor(color(255, 100, 00))
   screen.DrawText(screen.text1)
 
 
