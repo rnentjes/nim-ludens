@@ -25,6 +25,7 @@ type
   SplashScreen2* = ref object of Screen
     font: PFont
     text1: PText
+    music: Music
 
 ##
 
@@ -95,9 +96,15 @@ proc create2*(): SplashScreen2 =
 
 
 method Init*(screen: SplashScreen2) =
-  screen.font = newFont("assets/fonts/space_age.ttf")
+  screen.font = newFont("assets/fonts/COMPUTERRobot.ttf")
   screen.text1 = newText("Screen 2!", screen.font, 128)
 
+  screen.music = createMusic("assets/music/DST-AngryRobotIII.ogg")
+  screen.music.play()
+
+
+method Dispose*(screen: SplashScreen2) =
+  screen.music.Dispose()
 
 method Update*(screen: SplashScreen2, delta: float32) =
   discard

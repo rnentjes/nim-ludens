@@ -39,7 +39,8 @@ method Dispose*(mus: Music) =
 proc createMusic*(): Music =
     result = Music()
 
-proc createMusic*(songname: string): Music =
+proc createMusic*(songname: string, loop: bool = true): Music =
     result = Music()
     result.Load(songname)
+    result.song.setLoop(loop)
 

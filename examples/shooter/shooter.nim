@@ -1,4 +1,4 @@
-import src/glfw3 as glfw
+import csfml
 import opengl as gl
 import math
 
@@ -10,6 +10,7 @@ import "screen/splash"
 
 #
 
-var shooter = game.create(startScreen = splash.create())
-shooter.SetOrthoHeight(10'f32)
+var shooter = game.create(startScreen = splash.create(), width = 600, height = 900)
+shooter.SetClearColor(color(25, 25, 25))
+shooter.SetOrthoHeight(900'f32)
 shooter.Run()

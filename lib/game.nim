@@ -66,6 +66,10 @@ proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = f
   ludens = result
 
 
+proc SetClearColor*(game: Game, clearColor: TColor) =
+  game.clearColor = clearColor
+
+
 proc Resize(game: Game, width, height: int) =
   game.viewportWidth = width
   game.viewportHeight = height
@@ -200,6 +204,8 @@ proc Run*(game: Game) =
         if evt.key.code == KeyEscape:
           game.running = false
         game.gameScreen.KeyUp(evt.key.code)
+      of EvtKeyPressed:
+        game.gameScreen.KeyDown(evt.key.code)
       else: discard
 
     game.Update()
