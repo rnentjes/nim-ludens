@@ -7,6 +7,8 @@ import csfml_audio as audio
 import screen
 import texture
 import game
+import sound
+import music
 
 #
 
@@ -17,7 +19,8 @@ type
     x,y: float32
     font: PFont
     text1: PText
-    snd: PSoundBuffer
+    sound: Sound
+    music: Music
 
   SplashScreen2* = ref object of Screen
     font: PFont
@@ -32,9 +35,6 @@ proc create*(): SplashScreen =
 
 
 method Init*(screen: SplashScreen) =
-  echo "set clear color"
-  gl.glClearColor(0.2,0.0,0.2,1.0)
-
   screen.txt = createTexture("assets/images/playerunhappy.png")
   screen.txt2 = createTexture("assets/images/yellow_star.png")
   screen.font = newFont("assets/fonts/SHOWG.TTF")
@@ -44,7 +44,16 @@ method Init*(screen: SplashScreen) =
 
   echo "text w,h " & $screen.text1.getLocalBounds().width & " " & $screen.text1.getLocalBounds().height
 
-  screen.snd = newSoundBuffer("assets/snd/Powerup16.ogg")
+  screen.sound = createSound()
+  screen.sound.Load("assets/snd/Powerup16.ogg")
+
+  screen.music = createMusic("assets/music/DST-DFree.ogg")
+  screen.music.play()
+
+
+method Dispose*(screen: SplashScreen) =
+  screen.music.Dispose()
+  screen.sound.Dispose()
 
 
 method Update*(screen: SplashScreen, delta: float32) =
@@ -75,11 +84,9 @@ method Render*(screen: SplashScreen) =
 
 method KeyUp*(screen: SplashScreen, key: TKeyCode) =
   if key == sfml.KeyP:
-    var sound = newSound()
-    sound.setBuffer(screen.snd)
-    sound.play()
+    screen.sound.Play("assets/snd/Powerup16.ogg")
   else:
-    globalGame.SetScreen(create2())
+    ludens.SetScreen(create2())
 
 ##############################################3
 
@@ -88,7 +95,7 @@ proc create2*(): SplashScreen2 =
 
 
 method Init*(screen: SplashScreen2) =
-  screen.font = newFont("assets/fonts/SHOWG.TTF")
+  screen.font = newFont("assets/fonts/space_age.ttf")
   screen.text1 = newText("Screen 2!", screen.font, 128)
 
 
@@ -103,6 +110,5 @@ method Render*(screen: SplashScreen2) =
 
 
 method KeyUp*(screen: SplashScreen2, key: TKeyCode) =
-  globalGame.SetScreen(create())
-
+  ludens.SetScreen(create())
 

@@ -62,11 +62,10 @@ void main() {
   """
 
 
-
 proc textureMeshSetter(program: PShaderProgram, userdata: pointer) =
   var txt: Texture = cast[Texture](userdata)
 
-  program.SetUniformMatrix("u_pMatrix", globalGame.projectionmatrix.Address)
+  program.SetUniformMatrix("u_pMatrix", ludens.projectionmatrix.Address)
   program.SetUniform1i("u_texture", 0)
 
 
