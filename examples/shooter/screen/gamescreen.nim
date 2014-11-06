@@ -68,7 +68,6 @@ method Update*(screen: GameScreen, delta: float32) =
 
   # move bullets
   for i in countup(0, screen.nextBullet-1):
-    echo "bullet: " & $i
     var bullet = screen.bullets[i]
 
     bullet.x += bullet.dx * delta

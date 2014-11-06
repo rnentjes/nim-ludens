@@ -1,0 +1,9 @@
+#!/bin/bash
+#PATH=/home/rnentjes/Programming/apitrace/build/:$PATH
+
+rm -f ./shooter
+
+nimrod c -d:useRealtimeGC -d:release --parallelBuild:0 -r shooter.nim
+
+#apitrace trace ./LotsOfTriangles
+# ./LotsOfTriangles
