@@ -1,9 +1,11 @@
-import csfml
+import csfml as sfml
 
 # Screen
 
 type
   Screen* = ref object of TObject
+    window*: sfml.PRenderWindow
+    textview*: sfml.PView
 
 method Init*(screen: Screen) =
   discard
@@ -26,3 +28,8 @@ method KeyUp*(screen: Screen, key: TKeyCode) =
 method KeyRepeat*(screen: Screen, key: TKeyCode) =
   discard
 
+proc DrawText*(screen: Screen, text: Ptext) =
+  screen.window.resetGlStates()
+  screen.window.setView(screen.textview)
+  screen.window.draw(text)
+  #screen.window.setView(game.window.getDefaultView())

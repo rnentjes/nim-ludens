@@ -24,6 +24,7 @@ type
     projectionmatrix*: PMatrix
     fov, near, far: float32
     clearColor: TColor
+    textview: PView
 
 
 var
@@ -33,9 +34,8 @@ var
 
 proc Dispose(game: Game)
 proc Initialize(game: Game)
-
-
-
+proc Resize(game: Game, width, height: cint)
+proc SetScreen*(game: Game, gameScreen: Screen)
 
 proc create*(title: string = "Ludens", startScreen: Screen): Game =
   if globalGame != nil:
@@ -50,16 +50,17 @@ proc create*(title: string = "Ludens", startScreen: Screen): Game =
   globalGame.currentTime = float(sfml.getElapsedTime(globalGame.clock).microseconds) / 1000000'f32
   globalGame.lastFPSTime = 0
   globalGame.frameCount = 0
-  globalGame.viewportWidth = 800
-  globalGame.viewportHeight = 600
   globalGame.projection = prProjection
   globalGame.projectionmatrix = createMatrix()
   globalGame.fov = 75'f32
   globalGame.near = 1'f32
   globalGame.far = 25'f32
   globalGame.clearColor = sfml.color(20, 0, 20)
+  globalGame.viewportWidth = 800
+  globalGame.viewportHeight = 600
 
   globalGame.Initialize()
+  globalGame.Resize(globalGame.viewportWidth, globalGame.viewportHeight)
 
   result = globalGame
 
@@ -75,24 +76,26 @@ proc create*(title: string = "Ludens", startScreen: Screen): Game =
 #    globalGame.gameScreen.KeyRepeat(key, scancode, mods)
 
 proc Resize(game: Game, width, height: cint) =
-  globalGame.viewportWidth = width
-  globalGame.viewportHeight = height
+  game.viewportWidth = width
+  game.viewportHeight = height
 
-  globalGame.window.setSize(vec2i(width, height))
+  game.window.setSize(vec2i(width, height))
   echo("Resize: ", intToStr(width), ", ", intToStr(height))
 
   var aspect = float32(globalGame.viewportWidth) / float32(globalGame.viewportHeight)
-  case globalGame.projection:
+  case game.projection:
     of prProjection:
-      globalGame.projectionmatrix.PerspectiveProjection(75.0'f32, aspect, globalGame.near, globalGame.far)
+      game.projectionmatrix.PerspectiveProjection(75.0'f32, aspect, globalGame.near, globalGame.far)
     of prWidth:
-      globalGame.height = globalGame.width / aspect
-      globalGame.projectionmatrix.OrthographicProjection(-globalGame.width / 2, globalGame.width / 2, -globalGame.height / 2, globalGame.height / 2, -1'f32, -25'f32)
+      game.height = globalGame.width / aspect
+      game.projectionmatrix.OrthographicProjection(-globalGame.width / 2, globalGame.width / 2, -globalGame.height / 2, globalGame.height / 2, -1'f32, -25'f32)
     of prHeight:
-      globalGame.width = globalGame.height * aspect
-      globalGame.projectionmatrix.OrthographicProjection(-globalGame.width / 2, globalGame.width / 2, (-globalGame.height / 2), globalGame.height / 2, -1'f32, -25'f32)
+      game.width = globalGame.height * aspect
+      game.projectionmatrix.OrthographicProjection(-globalGame.width / 2, globalGame.width / 2, -globalGame.height / 2, globalGame.height / 2, -1'f32, -25'f32)
 
   gl.glViewport(0, 0, width, height)
+  game.gameScreen.textview = viewFromRect(floatRect(-globalGame.width / 2, -globalGame.height / 2, globalGame.width, globalGame.height))
+  # 0 , 0, cfloat(width), cfloat(height)))
 
 
 
@@ -126,28 +129,27 @@ proc GetOrthoHeight*(game: Game) : float32 =
   result = game.height
 
 proc Initialize(game: Game) =
-    var contextSettings = newContextSettings(32, 0, 0, 0, 0)
-    game.window = newRenderWindow(videoMode(800, 600, 32), "SFML Example", sfDefaultStyle, addr(contextSettings))
-    game.window.setFramerateLimit(200)
+    var contextSettings = newContextSettings(32, 0, 0, 2, 0)
+    game.window = newRenderWindow(videoMode(game.viewportWidth, game.viewportHeight, 32), "SFML Example", sfDefaultStyle, addr(contextSettings))
+    game.window.setFramerateLimit(240)
 
     game.startTime = float32(sfml.getElapsedTime(game.clock).microseconds) / 1000000'f32
 
     gl.loadExtensions()
 
-    game.Resize(800, 600)
-    game.gameScreen.Init
+    game.Resize(game.viewportWidth, game.viewportHeight)
+    game.SetScreen(game.gameScreen)
 
 
 proc SetScreen*(game: Game, gameScreen: Screen) =
   echo "Set screen"
-  game.gameScreen.Dispose
+  if game.gameScreen != nil:
+    game.gameScreen.Dispose
+
   game.gameScreen = gameScreen
+  game.gameScreen.window = game.window
+  game.Resize(game.viewportWidth, game.viewportHeight)
   game.gameScreen.Init
-
-
-proc Text*(game: Game, text: Ptext) =
-  game.window.resetGlStates()
-  game.window.draw(text)
 
 
 proc Update*(game: Game) =
