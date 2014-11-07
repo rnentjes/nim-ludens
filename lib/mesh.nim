@@ -1,4 +1,5 @@
 # Mesh
+import strutils
 
 import opengl
 import shaderProgram
@@ -8,9 +9,11 @@ import matrix
 type
   TMesh = object
     drawType: GLenum
-    data: array[0..4096, float32]
+    data: array[0..256, float32]
     count: GLsizei
     blockLength: GLsizei
+    drawLength: GLsizei
+    dataSize: int
     vertex_vbo: GLuint
     program: PShaderProgram
     setter: UniformSetter
@@ -45,9 +48,19 @@ proc createMesh*(program: PShaderProgram, setter: UniformSetter, userdata: point
     result.attrLocations[attr.attribute] = program.GetAttribLocation(attr.attribute)
     result.blockLength = result.blockLength + attr.numberOfElements
 
+  case drawType
+   of GL_TRIANGLES:
+     result.drawLength = result.blockLength * 3
+   else:
+     echo "Unknown draw type " & $drawType
+
+  result.dataSize = len(result.data) - (len(result.data) mod result.drawLength)
+
+  echo "DATASIZE: " & intToStr(result.dataSize)
+
   glGenBuffers(1, addr(result.vertex_vbo))
   glBindBuffer(GL_ARRAY_BUFFER, result.vertex_vbo)
-  glBufferData(GL_ARRAY_BUFFER, sizeof(GL_FLOAT) * result.data.len, addr(result.data[0]), GL_DYNAMIC_DRAW)
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GL_FLOAT) * high(result.data), addr(result.data[0]), GL_DYNAMIC_DRAW)
 
 proc Reset*(mesh: PMesh) =
   mesh.count = 0
@@ -65,8 +78,12 @@ proc Draw*(mesh: PMesh) =
     glVertexAttribPointer(mesh.attrLocations[attr.attribute], attr.numberOfElements, 
       cGL_FLOAT, false, cast[GLsizei](mesh.blockLength * sizeof(GL_FLOAT)), cast[pointer](index * sizeof(GL_FLOAT)))
     index += attr.numberOfElements
- 
+
+  #glBufferData(GL_ARRAY_BUFFER, cast[GLsizeiptr](sizeof(GL_FLOAT) * int(mesh.count)), addr(mesh.data[0]), GL_DYNAMIC_DRAW)
   glBufferSubData(GL_ARRAY_BUFFER, 0, cast[GLsizeiptr](sizeof(GL_FLOAT) * int(mesh.count)), addr(mesh.data[0]))
+
+  #if mesh.count > 200:
+  #  echo "m/b " & intToStr(mesh.count) & "/" & intToStr(mesh.blockLength) & " - " & intToStr(mesh.dataSize)
 
   glDrawArrays(mesh.drawType, 0, cast[GLsizei](uint(mesh.count / mesh.blockLength)))
 
@@ -79,12 +96,13 @@ proc Draw*(mesh: PMesh) =
   mesh.Reset
 
 proc AddVertices*(mesh: PMesh, verts: varargs[float32]) =
-  assert verts.len == mesh.blockLength
-  #assert (verts.len + mesh.count) < mesh.len
-  if (mesh.count + verts.len > 4000):
-    mesh.Draw
+  #assert verts.len == mesh.blockLength
+  assert ((len(verts) + mesh.count) < len(mesh.data))
 
   for v in verts:
     mesh.data[mesh.count] = v
     mesh.count = mesh.count + 1
+
+proc BufferFull*(mesh: PMesh):bool =
+  result = (mesh.count == mesh.dataSize)
 

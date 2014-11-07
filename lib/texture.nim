@@ -93,16 +93,6 @@ proc dispose*(txt: Texture) =
   #gl.glDeleteTextures(1, addr(txt.glid))
 
 
-proc draw*(txt: Texture, x,y,w,h: float32) =
-  txt.mesh.AddVertices(   x,   y,  -4'f32,  0'f32, 1'f32 )
-  txt.mesh.AddVertices( x+w,   y,  -4'f32,  1'f32, 1'f32 )
-  txt.mesh.AddVertices( x+w, y+h,  -4'f32,  1'f32, 0'f32 )
-
-  txt.mesh.AddVertices( x+w, y+h,  -4'f32,  1'f32, 0'f32 )
-  txt.mesh.AddVertices(   x, y+h,  -4'f32,  0'f32, 0'f32 )
-  txt.mesh.AddVertices(   x,   y,  -4'f32,  0'f32, 1'f32 )
-
-
 proc flush*(txt: Texture) =
   gl.glEnable(GL_TEXTURE_2D)
   gl.glEnable(GL_BLEND)
@@ -115,3 +105,20 @@ proc flush*(txt: Texture) =
   txt.mesh.Draw()
 
   gl.glBindTexture(GL_TEXTURE_2D, 0);
+
+
+proc draw*(txt: Texture, x,y,w,h: float32) =
+  txt.mesh.AddVertices(   x,   y,  -4'f32,  0'f32, 1'f32 )
+  txt.mesh.AddVertices( x+w,   y,  -4'f32,  1'f32, 1'f32 )
+  txt.mesh.AddVertices( x+w, y+h,  -4'f32,  1'f32, 0'f32 )
+
+  if txt.mesh.BufferFull:
+    txt.flush()
+
+  txt.mesh.AddVertices( x+w, y+h,  -4'f32,  1'f32, 0'f32 )
+  txt.mesh.AddVertices(   x, y+h,  -4'f32,  0'f32, 0'f32 )
+  txt.mesh.AddVertices(   x,   y,  -4'f32,  0'f32, 1'f32 )
+
+  if txt.mesh.BufferFull:
+    txt.flush()
+
