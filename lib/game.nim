@@ -14,7 +14,6 @@ type
     running: bool
     fullscreen: bool
     startTime: cdouble
-    window: sfml.PRenderWindow
     title*: string
     clock: PClock
     lastTime, currentTime, lastFPSTime: float32
@@ -25,7 +24,8 @@ type
     projectionmatrix*: PMatrix
     fov, near, far: float32
     clearColor: TColor
-    textview: PView
+    window*: sfml.PRenderWindow
+    textview*: PView
 
 
 var
@@ -133,7 +133,7 @@ proc Initialize(game: Game) =
       game.window = newRenderWindow(videoMode(cint(game.viewportWidth), cint(game.viewportHeight), 32), game.title, sfDefaultStyle, addr(contextSettings))
 
     # game.window.setFramerateLimit(240)
-    game.window.setVerticalSyncEnabled(true)
+    # game.window.setVerticalSyncEnabled(true)
 
     game.startTime = float32(sfml.getElapsedTime(game.clock).microseconds) / 1000000'f32
     gl.loadExtensions()

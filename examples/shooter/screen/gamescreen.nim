@@ -7,6 +7,7 @@ import screen
 import texture
 import game
 import music
+import font
 
 #
 
@@ -16,12 +17,10 @@ type
     dead: bool
 
   GameScreen* = ref object of Screen
-    font: PFont
-    text1: PText
-    text2: PText
+    font: Font
     music: Music
-    text1Width, text1Height, time: float32
     text1Alpha: int
+    time: float32
     player, bullet, ufo: Texture
     playerX: float32
     bullets: array[0..100, Sprite]
@@ -37,15 +36,7 @@ proc createGameScreen*(): GameScreen =
 method Init*(screen: GameScreen) =
   screen.time = -1
 
-  screen.font = newFont("fonts/COMPUTERRobot.ttf")
-  screen.text1 = newText("Shoot All Enemies!", screen.font, 64)
-  screen.text1Width = screen.text1.getGlobalBounds().width
-  screen.text1Height = screen.text1.getGlobalBounds().height
-  screen.text1.setPosition(vec2f(-screen.text1Width / 2, -screen.text1Height / 2))
-  screen.text1Alpha = 0
-
-  screen.text2 = newText("Bullets: 0", screen.font, 24)
-  screen.text2.setPosition(vec2f(-280, -420))
+  screen.font = createFont("fonts/COMPUTERRobot.ttf", color(255,100,0))
 
   screen.player = createTexture("images/PNG/playerShip1_blue.png")
   screen.bullet = createTexture("images/PNG/Lasers/laserBlue01.png")
@@ -53,6 +44,15 @@ method Init*(screen: GameScreen) =
 
   screen.nextBullet = 0
   screen.nextUfo = 0
+
+  screen.music =  createMusic("music/DST-TechnoBasic.ogg")
+  screen.music.play()
+
+  randomize()
+
+
+method Dispose*(screen: GameScreen) =
+  screen.music.Dispose()
 
 
 method Update*(screen: GameScreen, delta: float32) =
@@ -96,17 +96,18 @@ method Update*(screen: GameScreen, delta: float32) =
 
 
 method Render*(screen: GameScreen) =
-  screen.text1.setColor(color(255, 100, 0, screen.text1Alpha))
-  screen.DrawText(screen.text1)
-  screen.text2.setString("Bullets: " & intToStr(screen.nextBullet))
-  screen.DrawText(screen.text2)
+  if screen.text1Alpha > 0:
+    screen.font.SetColor(color(255, 100, 0, screen.text1Alpha))
+    screen.font.DrawCentered("Shoot All Enemies!", 64, 0'f32, 0'f32)
+
+  screen.font.SetColor(color(255, 200, 10, 150))
+  screen.font.DrawCentered("Bullets: " & intToStr(screen.nextBullet), 24, -240'f32, -420'f32)
 
   screen.player.draw(screen.playerX - 25,-400, 50, 50)
 
   for i in countup(0, screen.nextBullet-1):
     var bullet = screen.bullets[i]
     screen.bullet.draw(bullet.x - 5, bullet.y, 10, 30)
-
 
   screen.player.flush()
   screen.bullet.flush()

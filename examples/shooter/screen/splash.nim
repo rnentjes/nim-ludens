@@ -1,11 +1,11 @@
 import csfml as sfml
 import math
-import opengl as gl
 
 import screen
 import texture
 import game
 import music
+import font
 
 import gamescreen
 
@@ -13,10 +13,9 @@ import gamescreen
 
 type
   SplashScreen* = ref object of Screen
-    font: PFont
-    text1: PText
+    font: Font
     music: Music
-    text1Width, text1Height, time: float32
+    time: float32
     text1Alpha: int
 
 ##
@@ -28,14 +27,15 @@ proc create*(): SplashScreen =
 method Init*(screen: SplashScreen) =
   screen.time = 0
 
-  screen.font = newFont("fonts/COMPUTERRobot.ttf")
-  screen.text1 = newText("Press Space to Start!", screen.font, 64)
-  screen.text1Width = screen.text1.getGlobalBounds().width
-  screen.text1Height = screen.text1.getGlobalBounds().height
-  screen.text1.setPosition(vec2f(-screen.text1Width / 2, -screen.text1Height / 2))
+  screen.font = createFont("fonts/COMPUTERRobot.ttf", color(255,100,0))
   screen.text1Alpha = 0
 
+  screen.music =  createMusic("music/DST-TacticalSpace.ogg")
+  screen.music.play()
 
+
+method Dispose*(screen: SplashScreen) =
+  screen.music.Dispose()
 
 
 method Update*(screen: SplashScreen, delta: float32) =
@@ -45,9 +45,8 @@ method Update*(screen: SplashScreen, delta: float32) =
 
 
 method Render*(screen: SplashScreen) =
-  screen.text1.setColor(color(255, 100, 0, screen.text1Alpha))
-  screen.DrawText(screen.text1)
-
+  screen.font.SetColor(color(255, 100, 0, screen.text1Alpha))
+  screen.font.DrawCentered("Press Space to Start!", 64, 0'f32, 0'f32)
 
 
 
