@@ -49,21 +49,24 @@ proc createMesh*(program: PShaderProgram, setter: UniformSetter, userdata: point
     result.blockLength = result.blockLength + attr.numberOfElements
 
   case drawType
-   of GL_TRIANGLES:
-     result.drawLength = result.blockLength * 3
-   else:
-     echo "Unknown draw type " & $drawType
+    of GL_TRIANGLES:
+      result.drawLength = result.blockLength * 3
+    else:
+      quit("Unknown draw type " & $drawType)
 
   result.dataSize = len(result.data) - (len(result.data) mod result.drawLength)
 
   echo "DATASIZE: " & intToStr(result.dataSize)
+  echo "FLOATSIZE: " & intToStr(sizeof(float32))
 
   glGenBuffers(1, addr(result.vertex_vbo))
   glBindBuffer(GL_ARRAY_BUFFER, result.vertex_vbo)
-  glBufferData(GL_ARRAY_BUFFER, sizeof(GL_FLOAT) * high(result.data), addr(result.data[0]), GL_DYNAMIC_DRAW)
+  glBufferData(GL_ARRAY_BUFFER, cast[GLsizeiptr](sizeof(result.data).int32), addr(result.data[0]), GL_DYNAMIC_DRAW)
+
 
 proc Reset*(mesh: PMesh) =
   mesh.count = 0
+
 
 proc Draw*(mesh: PMesh) =
   mesh.program.Begin()
@@ -80,7 +83,7 @@ proc Draw*(mesh: PMesh) =
     index += attr.numberOfElements
 
   #glBufferData(GL_ARRAY_BUFFER, cast[GLsizeiptr](sizeof(GL_FLOAT) * int(mesh.count)), addr(mesh.data[0]), GL_DYNAMIC_DRAW)
-  glBufferSubData(GL_ARRAY_BUFFER, 0, cast[GLsizeiptr](sizeof(GL_FLOAT) * int(mesh.count)), addr(mesh.data[0]))
+  glBufferSubData(GL_ARRAY_BUFFER, 0, cast[GLsizeiptr](sizeof(float32) * int(mesh.count)), addr(mesh.data))
 
   #if mesh.count > 200:
   #  echo "m/b " & intToStr(mesh.count) & "/" & intToStr(mesh.blockLength) & " - " & intToStr(mesh.dataSize)
@@ -95,6 +98,7 @@ proc Draw*(mesh: PMesh) =
   mesh.program.Done()
   mesh.Reset
 
+
 proc AddVertices*(mesh: PMesh, verts: varargs[float32]) =
   #assert verts.len == mesh.blockLength
   assert ((len(verts) + mesh.count) < len(mesh.data))
@@ -102,6 +106,7 @@ proc AddVertices*(mesh: PMesh, verts: varargs[float32]) =
   for v in verts:
     mesh.data[mesh.count] = v
     mesh.count = mesh.count + 1
+
 
 proc BufferFull*(mesh: PMesh):bool =
   result = (mesh.count == mesh.dataSize)

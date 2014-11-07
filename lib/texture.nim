@@ -104,7 +104,7 @@ proc flush*(txt: Texture) =
 
   txt.mesh.Draw()
 
-  gl.glBindTexture(GL_TEXTURE_2D, 0);
+  #gl.glBindTexture(GL_TEXTURE_2D, 0);
 
 
 proc draw*(txt: Texture, x,y,w,h: float32) =
