@@ -60,6 +60,9 @@ type
     glid: GLuint
     program: PShaderProgram
     mesh: PMesh
+    countx, county, frames, currentFrame: int
+    frameTime, currentFrameTime: float32
+
 
 var
   program: PShaderProgram
@@ -88,7 +91,21 @@ proc initTexture(): Texture =
 proc createTexture*(file: string): Texture =
   result = initTexture()
   result.sfmlTexture = sfml.newTexture(file, nil)
+  result.countx = 1
+  result.county = 1
+  result.frames = 1
+  result.currentFrame = 1
 
+
+proc createTexture*(file: string, x,y,frames: int, frameTime: float32): Texture =
+  result = initTexture()
+  result.sfmlTexture = sfml.newTexture(file, nil)
+  result.countx = x
+  result.county = y
+  result.frames = frames
+  result.currentFrame = 1
+  result.currentFrameTime = 0
+  result.frameTime = frameTime
 
 
 proc dispose*(txt: Texture) =
@@ -109,19 +126,38 @@ proc flush*(txt: Texture) =
 
   #gl.glBindTexture(GL_TEXTURE_2D, 0);
 
+proc Update*(txt: Texture, delta: float32) =
+  txt.currentFrameTime += delta
+
+  if txt.currentFrameTime > txt.frameTime:
+    txt.currentFrameTime -= txt.frameTime
+    txt.currentFrame = (txt.currentFrame + 1) mod txt.frames
+
+
+proc draw*(txt: Texture, x,y,w,h: float32, frame: int) =
+  var actualFrame = frame mod txt.frames
+
+
+  var xw = 1'f32 / float32(txt.countx)
+  var yh = 1'f32 / float32(txt.county)
+
+  var tx = float32(actualFrame mod txt.countx) * xw
+  var ty = float32(int(actualFrame / txt.countx)) * yh
+
+  txt.mesh.AddVertices(   x,   y,  -4'f32,  tx     , ty + yh )
+  txt.mesh.AddVertices( x+w,   y,  -4'f32,  tx + xw, ty + yh )
+  txt.mesh.AddVertices( x+w, y+h,  -4'f32,  tx + xw, ty )
+
+  if txt.mesh.BufferFull:
+    txt.flush()
+
+  txt.mesh.AddVertices( x+w, y+h,  -4'f32,  tx + xw, ty )
+  txt.mesh.AddVertices(   x, y+h,  -4'f32,  tx     , ty )
+  txt.mesh.AddVertices(   x,   y,  -4'f32,  tx     , ty + yh )
+
+  if txt.mesh.BufferFull:
+    txt.flush()
 
 proc draw*(txt: Texture, x,y,w,h: float32) =
-  txt.mesh.AddVertices(   x,   y,  -4'f32,  0'f32, 1'f32 )
-  txt.mesh.AddVertices( x+w,   y,  -4'f32,  1'f32, 1'f32 )
-  txt.mesh.AddVertices( x+w, y+h,  -4'f32,  1'f32, 0'f32 )
-
-  if txt.mesh.BufferFull:
-    txt.flush()
-
-  txt.mesh.AddVertices( x+w, y+h,  -4'f32,  1'f32, 0'f32 )
-  txt.mesh.AddVertices(   x, y+h,  -4'f32,  0'f32, 0'f32 )
-  txt.mesh.AddVertices(   x,   y,  -4'f32,  0'f32, 1'f32 )
-
-  if txt.mesh.BufferFull:
-    txt.flush()
+  txt.draw(x,y,w,h,txt.currentFrame)
 

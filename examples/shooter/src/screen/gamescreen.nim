@@ -18,6 +18,10 @@ const
   backgroundSpeed = -50'f32
 
 type
+  Explosion = ref object of Sprite
+    frameTime, currentTime: float32
+    frame: int
+
   GameScreen* = ref object of Screen
     previous: Screen
     font: Font
@@ -25,12 +29,13 @@ type
     sound: Sound
     text1Alpha: int
     time: float32
-    player, bullet, ufo, bomb, background: Texture
+    player, bullet, ufo, bomb, background, explosion: Texture
     playerX, backgroundY: float32
     bullets: array[0..100, Sprite]
     enemybullets: array[0..100, Sprite]
+    explosions: array[0..100, Explosion]
     ufos: array[0..32, Ufo]
-    nextBullet, nextEnemyBullet, nextUfo: int
+    nextBullet, nextEnemyBullet, nextUfo, nextExplosion: int
     wave: Wave
     waveNumber, score: int
     waveStart: float32
@@ -53,13 +58,14 @@ proc createGameScreen*(previous: Screen): GameScreen =
 method Init*(screen: GameScreen) = 
   screen.time = -1
 
-  screen.font = createFont("data/fonts/COMPUTERRobot.ttf", color(255,100,0))
+  screen.font = createFont("data/fonts/kenvector_future.ttf", color(255,100,0))
 
   screen.player = createTexture("data/images/PNG/playerShip1_blue.png")
   screen.bullet = createTexture("data/images/PNG/Lasers/laserBlue01.png")
   screen.ufo = createTexture("data/images/PNG/Enemies/enemyBlack1.png")
   screen.bomb = createTexture("data/images/PNG/Lasers/laserRed10.png")
   screen.background = createTexture("data/images/Backgrounds/darkPurple.png")
+  screen.explosion = createTexture("data/images/explosion.png", 5, 5, 25, 0.016'f32)
   screen.playerX = 0
   screen.playerDeath = 0
 
@@ -99,6 +105,26 @@ proc createBomb(screen: GameScreen, ufo: Ufo) =
     screen.nextEnemyBullet += 1
     screen.sound.Play("data/sound/Powerup16.ogg")
   
+proc collides(x1,y1,w1,h1,x2,y2,w2,h2: float32): bool =
+  result =  (x1 > x2 and x1 < x2 + w2 and y1 > y2 and y1 < y2 + h2) or
+            (x1 + w1 > x2 and x1 + w1 < x2 + w2 and y1 > y2 and y1 < y2 + h2) or
+            (x1 > x2 and x1 < x2 + w2 and y1 + h1 > y2 and y1 + h1 < y2 + h2) or
+            (x1 + w1 > x2 and x1 + w1 < x2 + w2 and y1 + h1 > y2 and y1 + h1 < y2 + h2)
+
+
+proc createExplosion(x,y: float32): Explosion =
+  result = Explosion()
+  result.X(x)
+  result.Y(y)
+  result.frame = 0
+  result.frameTime = 0.016'f32
+
+
+proc addExplosion(screen: GameScreen, x,y: float32) =
+  if screen.nextExplosion < high(screen.explosions):
+    screen.explosions[screen.nextExplosion] = createExplosion(x, y)
+    screen.nextExplosion += 1
+
 
 method Update*(screen: GameScreen, delta: float32) =
   if screen.time < 0:
@@ -135,11 +161,9 @@ method Update*(screen: GameScreen, delta: float32) =
 
     bomb.Update(delta)
 
-    if bomb.x - 10 < screen.playerX + 25 and
-       bomb.y - 10 < -400 and
-       bomb.x + 10 > screen.playerX - 25 and
-       bomb.y + 10 > -350:
+    if collides(bomb.x - 10, bomb.y - 10, 20, 20, screen.playerX - 20, -400, 40, 40):
        screen.playerDeath = screen.time
+       bomb.Died()
 
     if bomb.y < -450:
       bomb.Died()
@@ -164,13 +188,12 @@ method Update*(screen: GameScreen, delta: float32) =
       var bullet = screen.bullets[i]
 
       if not ufo.Dead() and
-         bullet.x - 5 < ufo.x + 25 and 
-         bullet.y < ufo.y + 40 and
-         bullet.x + 5 > ufo.x - 25 and
-         bullet.y + 30 > ufo.y: 
+         collides(bullet.x - 5, bullet.y - 15, 10, 30, ufo.x - 25, ufo.y, 50, 40): 
+
         bullet.Died()
         ufo.Died()
         screen.score += 90 + 10 * screen.waveNumber
+        screen.addExplosion(ufo.x - 25, ufo.y - 25)
 
     if not ufo.Dead():
       aliveUfos = true
@@ -181,6 +204,21 @@ method Update*(screen: GameScreen, delta: float32) =
 
   if not aliveUfos and screen.nextBullet == 0:
     screen.NextWave()
+
+  # cleanup dead bullets
+  for i in countup(0, screen.nextExplosion-1):
+    var explosion = screen.explosions[i]
+    
+    explosion.currentTime += delta
+
+    if explosion.currentTime > explosion.frameTime:
+      explosion.frame += 1
+      explosion.currentTime -= explosion.frameTime
+
+    if explosion.frame > 24:
+      screen.explosions[i] = screen.explosions[screen.nextExplosion - 1]
+      screen.nextExplosion -= 1
+
 
   if sfml.isKeyPressed(KeyLeft):
     screen.playerX -= 250 * delta
@@ -194,7 +232,7 @@ method Update*(screen: GameScreen, delta: float32) =
   screen.backgroundY += backgroundSpeed * delta
   screen.backgroundY = screen.backgroundY mod 256
 
-  if screen.time - screen.playerDeath > 5'f32:
+  if screen.playerDeath > 0 and screen.time - screen.playerDeath > 5'f32:
     ludens.SetScreen(screen.previous)
 
 
@@ -220,25 +258,38 @@ method Render*(screen: GameScreen) =
     if not ufo.Dead():
       screen.ufo.draw(ufo.X() - 25, ufo.Y(), 50, 40)
 
-  screen.player.draw(screen.playerX - 25,-400, 50, 50)
+  if screen.playerDeath == 0:
+    screen.player.draw(screen.playerX - 25, -400, 50, 50)
+
+  for i in countup(0, screen.nextExplosion-1):
+    var explosion = screen.explosions[i]
+
+    screen.explosion.draw(explosion.x - 25, explosion.y - 25, 100, 100, explosion.frame)
 
   # actual draw calls
   screen.background.flush()
-  screen.bullet.flush()
+  screen.bullet.flush() 
   screen.bomb.flush()
   screen.ufo.flush()
   screen.player.flush()
+  screen.explosion.flush()
+
+  if screen.playerDeath > 0:
+    var alpha = int((screen.time - screen.playerDeath) * 255)
+    alpha = min(alpha, 255)
+    screen.font.SetColor(color(255, 200, 0, alpha))
+    screen.font.DrawCentered("Game Over!", 48, 0'f32, 0'f32)
 
   if screen.text1Alpha > 0:
     screen.font.SetColor(color(255, 100, 0, screen.text1Alpha))
-    screen.font.DrawCentered("Shoot All Enemies!", 64, 0'f32, 0'f32)
+    screen.font.DrawCentered("Shoot All Enemies!", 32, 0'f32, 0'f32)
 
   if screen.time - screen.waveStart < 2:
     var alpha = 512 - (256 * (screen.time - screen.waveStart))
     alpha = min(alpha, 255)
     alpha = max(alpha, 0)
     screen.font.SetColor(color(255, 50, 0, int(alpha)))
-    screen.font.DrawCentered("Wave " & intToStr(screen.waveNumber), 96, 0'f32, -200'f32)
+    screen.font.DrawCentered("Wave " & intToStr(screen.waveNumber), 48, 0'f32, -200'f32)
 
 
   screen.font.SetColor(color(255, 200, 10, 150))
@@ -251,7 +302,7 @@ method KeyUp*(screen: GameScreen, key: TKeyCode) =
 
 
 method KeyDown*(screen: GameScreen, key: TKeyCode) =
-  if key == sfml.KeySpace and screen.nextBullet < high(screen.bullets) and not screen.fired:
+  if key == sfml.KeySpace and screen.nextBullet < high(screen.bullets) and not screen.fired and screen.playerDeath == 0:
     # new bullet
     screen.bullets[screen.nextBullet] = createSprite(screen.playerX, -360, 0, 750)
     screen.nextBullet += 1

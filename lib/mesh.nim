@@ -56,9 +56,6 @@ proc createMesh*(program: PShaderProgram, setter: UniformSetter, userdata: point
 
   result.dataSize = len(result.data) - (len(result.data) mod result.drawLength)
 
-  echo "DATASIZE: " & intToStr(result.dataSize)
-  echo "FLOATSIZE: " & intToStr(sizeof(float32))
-
   glGenBuffers(1, addr(result.vertex_vbo))
   glBindBuffer(GL_ARRAY_BUFFER, result.vertex_vbo)
   glBufferData(GL_ARRAY_BUFFER, cast[GLsizeiptr](sizeof(result.data).int32), addr(result.data[0]), GL_DYNAMIC_DRAW)

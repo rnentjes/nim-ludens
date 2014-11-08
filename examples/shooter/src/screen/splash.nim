@@ -27,7 +27,7 @@ proc createSplash*(): SplashScreen =
 method Init*(screen: SplashScreen) =
   screen.time = 0
 
-  screen.font = createFont("data/fonts/COMPUTERRobot.ttf", color(255,100,0))
+  screen.font = createFont("data/fonts/kenvector_future.ttf", color(255,100,0))
   screen.text1Alpha = 0
 
   screen.music =  createMusic("data/music/DST-TacticalSpace.ogg")
@@ -46,7 +46,7 @@ method Update*(screen: SplashScreen, delta: float32) =
 
 method Render*(screen: SplashScreen) =
   screen.font.SetColor(color(255, 100, 0, screen.text1Alpha))
-  screen.font.DrawCentered("Press Space to Start!", 64, 0'f32, 0'f32)
+  screen.font.DrawCentered("Press Space to Start!", 32, 0'f32, 0'f32)
 
 
 
