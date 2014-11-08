@@ -16,6 +16,9 @@ proc createSimpleWave*(): SimpleWave =
   result = SimpleWave()
   result.time = 0
 
+proc Time*(wave: Wave): float32 =
+  result = wave.time
+
 method Update*(wave: Wave, delta:float32) =
   wave.time += delta
 

@@ -3,8 +3,7 @@ Little Nim game library
 Nimble Dependencies:
 
   - opengl
-  - nimrod-glfw / sfml
-  - DevIL
+  - sfml
 
 Ubuntu packages:
 

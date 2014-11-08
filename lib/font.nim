@@ -47,3 +47,19 @@ proc DrawLeft*(font: Font, txt: string, size: int, x,y: float) =
   ludens.window.draw(text)
 
   text.destroy()
+
+
+proc DrawRight*(font: Font, txt: string, size: int, x,y: float) =
+  var text = newText(txt, font.font, size)
+
+  var width = text.getGlobalBounds().width
+  var height = text.getGlobalBounds().height
+
+  text.setColor(font.color)
+  text.setPosition(vec2f(x - width, y - height / 2))
+
+  ludens.window.resetGlStates()
+  ludens.window.setView(ludens.textview)
+  ludens.window.draw(text)
+
+  text.destroy()

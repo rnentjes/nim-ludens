@@ -20,8 +20,8 @@ proc createSound*(): Sound =
   result.sounds = initTable[string, PSoundBuffer]()
   newSeq(result.buffers, 2)
 
-  result.buffers.add(newSound())
-  result.buffers.add(newSound())
+  for i in countup(0, 7):
+    result.buffers.add(newSound())
 
 
 method Load*(snd: Sound, soundname: string) =

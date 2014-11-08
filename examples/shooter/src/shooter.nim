@@ -6,11 +6,11 @@ import screen
 import game
 import texture
 
-import "screen/splash"
+import screen/splash as splash
 
 #
 
-var shooter = game.create(startScreen = splash.create(), width = 600, height = 900)
+var shooter = game.create(startScreen = splash.createSplash(), fullscreen = false, width = 600, height = 900)
 shooter.SetClearColor(color(40, 40, 40))
 shooter.SetOrthoHeight(900'f32)
 shooter.Run()

@@ -20,7 +20,7 @@ type
 
 ##
 
-proc create*(): SplashScreen =
+proc createSplash*(): SplashScreen =
   result = SplashScreen()
 
 
@@ -52,4 +52,4 @@ method Render*(screen: SplashScreen) =
 
 method KeyUp*(screen: SplashScreen, key: TKeyCode) =
   if key == sfml.KeySpace:
-    ludens.SetScreen(createGameScreen())
+    ludens.SetScreen(createGameScreen(screen))
