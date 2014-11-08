@@ -132,7 +132,7 @@ proc Initialize(game: Game) =
       game.window = newRenderWindow(videoMode(cint(game.viewportWidth), cint(game.viewportHeight), 32), game.title, sfDefaultStyle, addr(contextSettings))
 
     # game.window.setFramerateLimit(240)
-    game.window.setVerticalSyncEnabled(true)
+    # game.window.setVerticalSyncEnabled(true)
 
     game.startTime = float32(sfml.getElapsedTime(game.clock).microseconds) / 1000000'f32
     gl.loadExtensions()

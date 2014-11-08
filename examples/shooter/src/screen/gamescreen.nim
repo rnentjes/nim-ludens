@@ -24,8 +24,9 @@ type
     player, bullet, ufo: Texture
     playerX: float32
     bullets: array[0..100, Sprite]
+    enemy_bullets: array[0..100, Sprite]
     ufos: array[0..32, Ufo]
-    nextBullet, nextUfo: int
+    nextBullet, nextEnemyBullet, nextUfo: int
     wave: Wave
 
 ##
@@ -45,6 +46,7 @@ method Init*(screen: GameScreen) =
   screen.playerX = 0
 
   screen.nextBullet = 0
+  screen.nextEnemyBullet = 0
   screen.nextUfo = 0
 
   screen.music =  createMusic("data/music/DST-TechnoBasic.ogg")
