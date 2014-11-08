@@ -30,3 +30,20 @@ proc DrawCentered*(font: Font, txt: string, size: int, x,y: float) =
   ludens.window.resetGlStates()
   ludens.window.setView(ludens.textview)
   ludens.window.draw(text)
+
+  text.destroy()
+
+
+proc DrawLeft*(font: Font, txt: string, size: int, x,y: float) =
+  var text = newText(txt, font.font, size)
+
+  var height = text.getGlobalBounds().height
+
+  text.setColor(font.color)
+  text.setPosition(vec2f(x, y - height / 2))
+
+  ludens.window.resetGlStates()
+  ludens.window.setView(ludens.textview)
+  ludens.window.draw(text)
+
+  text.destroy()

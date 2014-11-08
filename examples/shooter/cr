@@ -3,7 +3,7 @@
 
 rm -f ./TestGame
 
-nimrod c -d:useRealtimeGC --parallelBuild:0 -r shooter.nim
+nimrod c -d:useRealtimeGC --parallelBuild:0 -r src/shooter.nim
 
 #apitrace trace ./LotsOfTriangles
 # ./LotsOfTriangles

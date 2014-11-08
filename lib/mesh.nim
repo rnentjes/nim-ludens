@@ -9,10 +9,10 @@ import matrix
 type
   TMesh = object
     drawType: GLenum
-    data: array[0..256, float32]
-    count: GLsizei
-    blockLength: GLsizei
-    drawLength: GLsizei
+    data: array[0..4096, float32]
+    count: int
+    blockLength: int
+    drawLength: int
     dataSize: int
     vertex_vbo: GLuint
     program: PShaderProgram
@@ -78,15 +78,12 @@ proc Draw*(mesh: PMesh) =
   var index = 0
   for attr in mesh.attrs:
     glEnableVertexAttribArray(mesh.attrLocations[attr.attribute])
-    glVertexAttribPointer(mesh.attrLocations[attr.attribute], attr.numberOfElements, 
+    glVertexAttribPointer(mesh.attrLocations[attr.attribute], attr.numberOfElements,
       cGL_FLOAT, false, cast[GLsizei](mesh.blockLength * sizeof(GL_FLOAT)), cast[pointer](index * sizeof(GL_FLOAT)))
     index += attr.numberOfElements
 
   #glBufferData(GL_ARRAY_BUFFER, cast[GLsizeiptr](sizeof(GL_FLOAT) * int(mesh.count)), addr(mesh.data[0]), GL_DYNAMIC_DRAW)
-  glBufferSubData(GL_ARRAY_BUFFER, 0, cast[GLsizeiptr](sizeof(float32) * int(mesh.count)), addr(mesh.data))
-
-  #if mesh.count > 200:
-  #  echo "m/b " & intToStr(mesh.count) & "/" & intToStr(mesh.blockLength) & " - " & intToStr(mesh.dataSize)
+  glBufferSubData(GL_ARRAY_BUFFER, 0, cast[GLsizeiptr](sizeof(float32) * mesh.count), addr(mesh.data))
 
   glDrawArrays(mesh.drawType, 0, cast[GLsizei](uint(mesh.count / mesh.blockLength)))
 
@@ -100,8 +97,8 @@ proc Draw*(mesh: PMesh) =
 
 
 proc AddVertices*(mesh: PMesh, verts: varargs[float32]) =
-  #assert verts.len == mesh.blockLength
-  assert ((len(verts) + mesh.count) < len(mesh.data))
+  assert len(verts) == mesh.blockLength
+  assert len(verts) + mesh.count <= mesh.dataSize
 
   for v in verts:
     mesh.data[mesh.count] = v

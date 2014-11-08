@@ -10,16 +10,8 @@ import matrix
 import shaderprogram
 import mesh
 
-type
-  Texture* = ref object of TObject
-    sfmlTexture: PTexture
-    glid: GLuint
-    program: PShaderProgram
-    mesh: PMesh
 
-var
-  program: PShaderProgram
-
+const
   vert: string = """
 #version 120
 
@@ -60,6 +52,17 @@ void main() {
     gl_FragColor = texture2D(u_texture, v_texCoords);
 }
   """
+
+
+type
+  Texture* = ref object of TObject
+    sfmlTexture: PTexture
+    glid: GLuint
+    program: PShaderProgram
+    mesh: PMesh
+
+var
+  program: PShaderProgram
 
 
 proc textureMeshSetter(program: PShaderProgram, userdata: pointer) =

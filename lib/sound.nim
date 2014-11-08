@@ -26,7 +26,7 @@ proc createSound*(): Sound =
 
 method Load*(snd: Sound, soundname: string) =
   if not snd.sounds.hasKey(soundname):
-    var sound =  newSoundBuffer("assets/snd/Powerup16.ogg")
+    var sound =  newSoundBuffer(soundname)
     snd.sounds[soundname] = sound
 
 

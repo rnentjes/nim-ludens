@@ -3,7 +3,7 @@
 
 rm -f ./shooter
 
-nimrod c -d:useRealtimeGC -d:release --parallelBuild:0 -r shooter.nim
+nimrod c -d:useRealtimeGC -d:release --parallelBuild:0 --deadCodeElim:on --opt:speed -r src/shooter.nim -o shooter
 
 #apitrace trace ./LotsOfTriangles
 # ./LotsOfTriangles

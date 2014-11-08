@@ -27,10 +27,10 @@ proc create*(): SplashScreen =
 method Init*(screen: SplashScreen) =
   screen.time = 0
 
-  screen.font = createFont("fonts/COMPUTERRobot.ttf", color(255,100,0))
+  screen.font = createFont("data/fonts/COMPUTERRobot.ttf", color(255,100,0))
   screen.text1Alpha = 0
 
-  screen.music =  createMusic("music/DST-TacticalSpace.ogg")
+  screen.music =  createMusic("data/music/DST-TacticalSpace.ogg")
   screen.music.play()
 
 
