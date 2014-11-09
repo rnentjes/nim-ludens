@@ -108,9 +108,9 @@ proc createTexture*(file: string, x,y,frames: int, frameTime: float32): Texture 
   result.frameTime = frameTime
 
 
-proc dispose*(txt: Texture) =
+proc Dispose*(txt: Texture) =
   sfml.destroy(txt.sfmlTexture)
-  #gl.glDeleteTextures(1, addr(txt.glid))
+  txt.mesh.Dispose()
 
 
 proc flush*(txt: Texture) =

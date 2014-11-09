@@ -97,7 +97,7 @@ proc PerspectiveProjection*(matrix: PMatrix, angle: float32, imageAspectRatio: f
     matrix.matrix[14] = -(2.0'f32 * far * near) / (far - near)
     matrix.matrix[15] = 0.0'f32
 
-proc Mul(matrix: PMatrix, other: array[0..15, float32]) =
+proc `*=`(matrix: PMatrix, other: array[0..15, float32]) =
   matrix.tmp[ 0] = matrix.matrix[ 0] * other[ 0] + matrix.matrix[ 1] * other[ 4] + matrix.matrix[ 2] * other[ 8] + matrix.matrix[ 3] * other[12]
   matrix.tmp[ 1] = matrix.matrix[ 0] * other[ 1] + matrix.matrix[ 1] * other[ 5] + matrix.matrix[ 2] * other[ 9] + matrix.matrix[ 3] * other[13]
   matrix.tmp[ 2] = matrix.matrix[ 0] * other[ 2] + matrix.matrix[ 1] * other[ 6] + matrix.matrix[ 2] * other[10] + matrix.matrix[ 3] * other[14]
@@ -138,7 +138,7 @@ proc RotateZ*(matrix: PMatrix, angle: float32) =
   matrix.rz[ 4] = float32(-sin(angle))
   matrix.rz[ 5] = float32(cos(angle))
 
-  matrix.Mul(matrix.rz)
+  matrix *= matrix.rz
 
 proc RotateX*(matrix: PMatrix, angle: float32) =
   matrix.rx[ 5] = float32(cos(angle))
@@ -146,4 +146,4 @@ proc RotateX*(matrix: PMatrix, angle: float32) =
   matrix.rx[ 9] = float32(sin(angle))
   matrix.rx[10] = float32(cos(angle))
 
-  matrix.Mul(matrix.rx)
+  matrix *= matrix.rx

@@ -1,53 +1,55 @@
 # SoundHandler
 #
-# var sound = createSound()
-# sound.Load("sounds/bleepbleep.ogg")
-# sound.Play("sounds/bleepbleep.ogg")
+# var soundHandler = createSoundHandler()
+# var sound = createSound("sounds/bleepbleep.ogg")
 #
+# soundHandler.play(sound)
+#
+
 import tables
 import csfml_audio as audio
 
 # Sound
 
 type
-  Sound* = ref object of TObject
-    sounds: TTable[string, PSoundBuffer]
+  SoundPlayer* = ref object of TObject
     buffers: seq[PSound]
 
+  Sound* = ref object of TObject
+    soundBuffer: PSoundBuffer
 
-proc createSound*(): Sound =
-  result = Sound()
-  result.sounds = initTable[string, PSoundBuffer]()
-  newSeq(result.buffers, 2)
 
-  for i in countup(0, 7):
+proc createSoundPlayer*(numberOfBuffers: int = 8): SoundPlayer =
+  result = SoundPlayer()
+
+  newSeq(result.buffers, numberOfBuffers)
+  for i in countup(1, numberOfBuffers):
     result.buffers.add(newSound())
 
 
-method Load*(snd: Sound, soundname: string) =
-  if not snd.sounds.hasKey(soundname):
-    var sound =  newSoundBuffer(soundname)
-    snd.sounds[soundname] = sound
+proc createSound*(filename: string): Sound =
+  result = Sound()
+  result.soundBuffer =  newSoundBuffer(filename)
 
 
-method GetSound*(snd: Sound, soundname: string): PSoundBuffer =
-  snd.Load(soundname)
+method Play*(player: SoundPlayer, snd: Sound, vol: float32 = 100) =
+  var buffer: PSound = nil
+  for buf in player.buffers:
+    if buffer == nil and buf != nil and buf.getStatus() == Stopped:
+      buffer = buf
+      break;
 
-  result = snd.sounds[soundname]
-
-
-method Play*(snd: Sound, soundname: string) =
-  var found = false
-  for buf in snd.buffers:
-    if buf != nil and buf.getStatus() == Stopped:
-        buf.setBuffer(snd.GetSound(soundname))
-        buf.play()
-        found = true
-        break;
-
-  if not found:
-    echo "Not enough sound buffers in sound.nim!"
+  if buffer != nil:
+    buffer.setVolume(vol)
+    buffer.setBuffer(snd.soundBuffer)
+    buffer.play()
+  #else:
+  #  echo "Not enough sound buffers in sound.nim!"
 
 
-method Dispose*(snd: Sound) =
+method Dispose*(soundPlayer: SoundPlayer) =
+  discard
+
+
+method Dispose*(sound: Sound) =
   discard

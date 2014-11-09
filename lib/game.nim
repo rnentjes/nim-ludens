@@ -12,7 +12,7 @@ type
   Game* = ref object of TObject
     gameScreen*: Screen
     running: bool
-    fullscreen: bool
+    fullscreen, vsync: bool
     startTime: cdouble
     title*: string
     clock: PClock
@@ -37,7 +37,7 @@ proc Initialize(game: Game)
 proc Resize(game: Game, width, height: int)
 proc SetScreen*(game: Game, gameScreen: Screen)
 
-proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = false, width: int = 800, height: int = 600): Game =
+proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = false, vsync: bool = false, width: int = 800, height: int = 600): Game =
   if ludens != nil:
     ludens.Dispose()
 
@@ -45,6 +45,7 @@ proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = f
   result.clock = newClock()
   result.running = false
   result.fullscreen = fullscreen
+  result.vsync = vsync
   result.title = title
   result.gameScreen = startScreen
   result.lastTime = 0'f32
@@ -89,7 +90,7 @@ proc Resize(game: Game, width, height: int) =
 
   gl.glViewport(0, 0, cint(width), cint(height))
   game.textview = viewFromRect(floatRect(-game.width / 2, -game.height / 2, game.width, game.height))
-  game.gameScreen.textview = game.textview
+  #game.textview.setRotation(180)
 
 
 proc Perspective*(game: Game, fov, near, far: float32) =
@@ -122,7 +123,7 @@ proc GetOrthoHeight*(game: Game) : float32 =
   result = game.height
 
 proc Initialize(game: Game) =
-    var contextSettings = newContextSettings(32, 0, 0, 2, 0)
+    var contextSettings = newContextSettings(32, 0, 4, 2, 0)
     if game.fullscreen:
       var videoMode = getDesktopMode()
       game.viewportWidth = videoMode.width
@@ -132,14 +133,17 @@ proc Initialize(game: Game) =
       game.window = newRenderWindow(videoMode(cint(game.viewportWidth), cint(game.viewportHeight), 32), game.title, sfDefaultStyle, addr(contextSettings))
 
     #game.window.setFramerateLimit(120)
-    #game.window.setVerticalSyncEnabled(true)
+    if game.vsync:
+      game.window.setVerticalSyncEnabled(true)
+
+    #echo "GL_VENDOR: " & $gl.glGetString(GL.GL_VENDOR)
+    #echo "GL_RENDERER: " & $gl.glGetString(GL.GL_RENDERER)
+    #echo "GL_VERSION: " & $gl.glGetString(GL.GL_VERSION)
 
     game.startTime = float32(sfml.getElapsedTime(game.clock).microseconds) / 1000000'f32
     gl.loadExtensions()
 
     game.Resize(game.viewportWidth, game.viewportHeight)
-    game.gameScreen.window = game.window
-    game.gameScreen.textview = game.textview
     game.gameScreen.Init()
 
 
@@ -149,8 +153,6 @@ proc SetScreen*(game: Game, gameScreen: Screen) =
     game.gameScreen.Dispose()
 
   game.gameScreen = gameScreen
-  game.gameScreen.window = game.window
-  game.gameScreen.textview = game.textview
   game.gameScreen.Init
 
 
@@ -215,4 +217,4 @@ proc Run*(game: Game) =
     game.window.display()
 
 
-  game.gameScreen.Dispose
+  game.Dispose()

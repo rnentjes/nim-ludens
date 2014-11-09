@@ -36,6 +36,7 @@ method Init*(screen: SplashScreen) =
 
 method Dispose*(screen: SplashScreen) =
   screen.music.Dispose()
+  screen.font.Dispose()
 
 
 method Update*(screen: SplashScreen, delta: float32) =

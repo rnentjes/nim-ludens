@@ -56,3 +56,4 @@ method Update*(ufo: Ufo, delta: float32) =
 
 proc createUfo*(wave: Wave, nr: int): Ufo =
   result = Ufo(wave: Wave, number: nr)
+  result.Y(-500)

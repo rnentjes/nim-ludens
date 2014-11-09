@@ -26,7 +26,8 @@ type
     previous: Screen
     font: Font
     music: Music
-    sound: Sound
+    soundPlayer: SoundPlayer
+    shootSound, explosionSound, bombSound: Sound
     text1Alpha: int
     time: float32
     player, bullet, ufo, bomb, background, explosion: Texture
@@ -43,7 +44,6 @@ type
     fired: bool
     playerDeath: float32
 
-
 ##
 
 proc NextWave(screen: GameScreen)
@@ -55,7 +55,7 @@ proc createGameScreen*(previous: Screen): GameScreen =
   result.previous = previous
 
 
-method Init*(screen: GameScreen) = 
+method Init*(screen: GameScreen) =
   screen.time = -1
 
   screen.font = createFont("data/fonts/kenvector_future.ttf", color(255,100,0))
@@ -81,9 +81,10 @@ method Init*(screen: GameScreen) =
   screen.music =  createMusic("data/music/DST-TechnoBasic.ogg")
   screen.music.play()
 
-  screen.sound = createSound()
-  # pre load sound
-  screen.sound.Load("data/sound/Powerup16.ogg")
+  screen.soundPlayer = createSoundPlayer()
+  screen.bombSound = createSound("data/sound/Bomb_Drop.ogg")
+  screen.shootSound = createSound("data/sound/Powerup16.ogg")
+  screen.explosionSound = createSound("data/sound/Explosion7.ogg")
 
   screen.wave = createSimpleWave()
 
@@ -94,8 +95,21 @@ method Init*(screen: GameScreen) =
 
 
 method Dispose*(screen: GameScreen) =
+  screen.font.Dispose()
+
+  screen.player.Dispose()
+  screen.bullet.Dispose()
+  screen.ufo.Dispose()
+  screen.bomb.Dispose()
+  screen.background.Dispose()
+  screen.explosion.Dispose()
+
   screen.music.Dispose()
-  screen.sound.Dispose()
+
+  screen.bombSound.Dispose()
+  screen.shootSound.Dispose()
+  screen.explosionSound.Dispose()
+  screen.soundPlayer.Dispose()
 
 
 proc createBomb(screen: GameScreen, ufo: Ufo) =
@@ -103,8 +117,8 @@ proc createBomb(screen: GameScreen, ufo: Ufo) =
     # new bomb
     screen.enemybullets[screen.nextEnemyBullet] = createSprite(ufo.X(), ufo.Y(), 0, -300)
     screen.nextEnemyBullet += 1
-    screen.sound.Play("data/sound/Powerup16.ogg")
-  
+    screen.soundPlayer.Play(screen.bombSound)
+
 proc collides(x1,y1,w1,h1,x2,y2,w2,h2: float32): bool =
   result =  (x1 > x2 and x1 < x2 + w2 and y1 > y2 and y1 < y2 + h2) or
             (x1 + w1 > x2 and x1 + w1 < x2 + w2 and y1 > y2 and y1 < y2 + h2) or
@@ -124,6 +138,8 @@ proc addExplosion(screen: GameScreen, x,y: float32) =
   if screen.nextExplosion < high(screen.explosions):
     screen.explosions[screen.nextExplosion] = createExplosion(x, y)
     screen.nextExplosion += 1
+
+  screen.soundPlayer.Play(screen.explosionSound, 50'f32)
 
 
 method Update*(screen: GameScreen, delta: float32) =
@@ -161,9 +177,10 @@ method Update*(screen: GameScreen, delta: float32) =
 
     bomb.Update(delta)
 
-    if collides(bomb.x - 10, bomb.y - 10, 20, 20, screen.playerX - 20, -400, 40, 40):
+    if screen.playerDeath == 0 and collides(bomb.x - 10, bomb.y - 10, 20, 20, screen.playerX - 20, -400, 40, 40):
        screen.playerDeath = screen.time
        bomb.Died()
+       screen.addExplosion(screen.playerX - 20, -400)
 
     if bomb.y < -450:
       bomb.Died()
@@ -181,14 +198,14 @@ method Update*(screen: GameScreen, delta: float32) =
   # Update ufos
   var aliveUfos = false
   for i in countup(0, 31):
-    var ufo = screen.ufos[i] 
+    var ufo = screen.ufos[i]
     ufo.Update(delta)
 
     for i in countup(0, screen.nextBullet-1):
       var bullet = screen.bullets[i]
 
       if not ufo.Dead() and
-         collides(bullet.x - 5, bullet.y - 15, 10, 30, ufo.x - 25, ufo.y, 50, 40): 
+         collides(bullet.x - 5, bullet.y - 15, 10, 30, ufo.x - 25, ufo.y, 50, 40):
 
         bullet.Died()
         ufo.Died()
@@ -208,7 +225,7 @@ method Update*(screen: GameScreen, delta: float32) =
   # cleanup dead bullets
   for i in countup(0, screen.nextExplosion-1):
     var explosion = screen.explosions[i]
-    
+
     explosion.currentTime += delta
 
     if explosion.currentTime > explosion.frameTime:
@@ -268,7 +285,7 @@ method Render*(screen: GameScreen) =
 
   # actual draw calls
   screen.background.flush()
-  screen.bullet.flush() 
+  screen.bullet.flush()
   screen.bomb.flush()
   screen.ufo.flush()
   screen.player.flush()
@@ -306,7 +323,7 @@ method KeyDown*(screen: GameScreen, key: TKeyCode) =
     # new bullet
     screen.bullets[screen.nextBullet] = createSprite(screen.playerX, -360, 0, 750)
     screen.nextBullet += 1
-    screen.sound.Play("data/sound/Powerup16.ogg")
+    screen.soundPlayer.Play(screen.shootSound)
     screen.fired = true
 
   if key == sfml.KeyW:

@@ -61,6 +61,9 @@ proc createMesh*(program: PShaderProgram, setter: UniformSetter, userdata: point
   glBufferData(GL_ARRAY_BUFFER, cast[GLsizeiptr](sizeof(result.data).int32), addr(result.data[0]), GL_DYNAMIC_DRAW)
 
 
+proc Dispose*(mesh: PMesh) =
+  discard
+  
 proc Reset*(mesh: PMesh) =
   mesh.count = 0
 
