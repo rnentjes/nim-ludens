@@ -7,7 +7,4 @@ Nimble Dependencies:
 
 Ubuntu packages:
 
--> libglfw3
--> libdevil-dev
-
 -> libcsfml-dev
