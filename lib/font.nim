@@ -25,7 +25,7 @@ proc DrawCentered*(font: Font, txt: string, size: int, x,y: float) =
   var height = text.getGlobalBounds().height
 
   text.setColor(font.color)
-  text.setPosition(vec2f(x - width / 2, y - height / 2))
+  text.setPosition(vec2f(x - width / 2, -(y + height / 2)))
 
   ludens.window.resetGlStates()
   ludens.window.setView(ludens.textview)
@@ -40,7 +40,7 @@ proc DrawLeft*(font: Font, txt: string, size: int, x,y: float) =
   var height = text.getGlobalBounds().height
 
   text.setColor(font.color)
-  text.setPosition(vec2f(x, y - height / 2))
+  text.setPosition(vec2f(x, -(y + height / 2)))
 
   ludens.window.resetGlStates()
   ludens.window.setView(ludens.textview)
@@ -56,7 +56,7 @@ proc DrawRight*(font: Font, txt: string, size: int, x,y: float) =
   var height = text.getGlobalBounds().height
 
   text.setColor(font.color)
-  text.setPosition(vec2f(x - width, y - height / 2))
+  text.setPosition(vec2f(x - width, -(y + height / 2)))
 
   ludens.window.resetGlStates()
   ludens.window.setView(ludens.textview)

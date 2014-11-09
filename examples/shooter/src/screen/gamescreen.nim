@@ -306,12 +306,12 @@ method Render*(screen: GameScreen) =
     alpha = min(alpha, 255)
     alpha = max(alpha, 0)
     screen.font.SetColor(color(255, 50, 0, int(alpha)))
-    screen.font.DrawCentered("Wave " & intToStr(screen.waveNumber), 48, 0'f32, -200'f32)
+    screen.font.DrawCentered("Wave " & intToStr(screen.waveNumber), 48, 0'f32, 200'f32)
 
 
   screen.font.SetColor(color(255, 200, 10, 150))
-  screen.font.DrawLeft("Score: " & intToStr(screen.score), 24, -280'f32, -420'f32)
-  screen.font.DrawRight("Wave: " & intToStr(screen.waveNumber), 24, 280'f32, -420'f32)
+  screen.font.DrawLeft("Score: " & intToStr(screen.score), 24, -280'f32, 420'f32)
+  screen.font.DrawRight("Wave: " & intToStr(screen.waveNumber), 24, 280'f32, 420'f32)
 
 method KeyUp*(screen: GameScreen, key: TKeyCode) =
   if key == sfml.KeySpace:
