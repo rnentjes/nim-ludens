@@ -1,6 +1,5 @@
 import csfml as sfml
 import opengl as gl
-import IL, ILU
 import strutils
 
 import screen
@@ -133,7 +132,7 @@ proc GetOrthoHeight*(game: Game) : float32 =
   result = game.height
 
 proc Initialize(game: Game) =
-    var contextSettings = newContextSettings(32, 0, 4, 2, 0)
+    var contextSettings = newContextSettings(32, 0, 0, 2, 0)
     if game.fullscreen:
       var videoMode = getDesktopMode()
       game.viewportWidth = videoMode.width

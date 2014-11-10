@@ -40,7 +40,7 @@ method Dispose*(screen: ExampleScreen) =
 
 
 method Update*(screen: ExampleScreen, delta: float32) =
-  screen.time += delta
+  screen.time += delta / 4
 
 
 method Render*(screen: ExampleScreen) =
