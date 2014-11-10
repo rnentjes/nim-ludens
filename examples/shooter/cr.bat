@@ -1,0 +1,1 @@
+nimrod c -r src\shooter.nim
