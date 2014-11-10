@@ -1,3 +1,3 @@
-Invader type of game example
+Invader type of example game
 
 ![Nimvaders](screenshot.png "Nimvaders")
