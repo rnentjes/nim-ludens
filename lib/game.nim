@@ -16,7 +16,7 @@ type
     startTime: cdouble
     title*: string
     clock: PClock
-    lastTime, currentTime, lastFPSTime: float32
+    lastTime, currentTime, lastFPSTime, frameRate, frameTime: float32
     frameCount: int
     projection: Projection
     viewportWidth, viewportHeight: int
@@ -52,6 +52,8 @@ proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = f
   result.currentTime = 0'f32
   result.lastFPSTime = 0
   result.frameCount = 0
+  result.frameRate = -1
+  result.frameTime = -1
   result.projection = prProjection
   result.projectionmatrix = createMatrix()
   result.fov = 75'f32
@@ -68,6 +70,14 @@ proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = f
 
 proc SetClearColor*(game: Game, clearColor: TColor) =
   game.clearColor = clearColor
+
+
+proc GetFrameRate*(game: Game): float32 =
+  result = game.frameRate
+
+
+proc GetFrameTime*(game: Game): float32 =
+  result = game.frameTime
 
 
 proc Resize(game: Game, width, height: int) =
@@ -164,8 +174,9 @@ proc Update*(game: Game) =
   #echo("DELTA: $1" % formatFloat(frameDelta, ffDefault, 9))
 
   if game.currentTime - game.lastFPSTime > 1.0:
-      var frameRate = float(game.frameCount) / (game.currentTime - game.lastFPSTime)
-      echo("FPS: $1" % formatFloat(frameRate, ffDefault, 6))
+      game.frameRate = float(game.frameCount) / (game.currentTime - game.lastFPSTime)
+      game.frameTime = 1000.0 / game.frameRate
+      #echo("FPS: $1" % formatFloat(frameRate, ffDefault, 6))
 
       game.lastFPSTime = game.currentTime
       game.frameCount = 0

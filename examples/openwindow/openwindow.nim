@@ -93,7 +93,7 @@ method KeyUp*(screen: ExampleScreen, key: TKeyCode) =
 
 var shooter = game.create(startScreen = createScreen(),
                           title = "Example splash screen!",
-                          vsync = true,
+                          vsync = fals,
                           fullscreen = false,
                           width = 600,
                           height = 900)
