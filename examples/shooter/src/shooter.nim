@@ -1,5 +1,10 @@
 import csfml
+import opengl as gl
+import math
+
+import screen
 import game
+import texture
 
 import screen/splash as splash
 
