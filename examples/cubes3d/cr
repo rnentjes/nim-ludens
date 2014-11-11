@@ -1,0 +1,3 @@
+#!/bin/bash
+
+nimrod c -d:useRealtimeGC --parallelBuild:0 -r cubes3d.nim

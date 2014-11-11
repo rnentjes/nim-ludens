@@ -93,13 +93,13 @@ proc Resize(game: Game, width, height: int) =
     of prWidth:
       game.height = game.width / aspect
       game.projectionmatrix.OrthographicProjection(-game.width / 2, game.width / 2, -game.height / 2, game.height / 2, -1'f32, -25'f32)
+      game.textview = viewFromRect(floatRect(-game.width / 2, -game.height / 2, game.width, game.height))
     of prHeight:
       game.width = game.height * aspect
       game.projectionmatrix.OrthographicProjection(-game.width / 2, game.width / 2, -game.height / 2, game.height / 2, -1'f32, -25'f32)
+      game.textview = viewFromRect(floatRect(-game.width / 2, -game.height / 2, game.width, game.height))
 
   gl.glViewport(0, 0, cint(width), cint(height))
-  game.textview = viewFromRect(floatRect(-game.width / 2, -game.height / 2, game.width, game.height))
-  #game.textview.setRotation(180)
 
 
 proc Perspective*(game: Game, fov, near, far: float32) =

@@ -1,9 +1,3 @@
 #!/bin/bash
-#PATH=/home/rnentjes/Programming/apitrace/build/:$PATH
-
-rm -f ./TestGame
 
 nimrod c -d:useRealtimeGC --parallelBuild:0 -r openwindow.nim
-
-#apitrace trace ./LotsOfTriangles
-# ./LotsOfTriangles
