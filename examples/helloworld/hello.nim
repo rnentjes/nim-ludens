@@ -22,13 +22,13 @@ method Init*(screen: ExampleScreen) =
 method Update*(screen: ExampleScreen, delta: float32) =
   screen.time += delta
 
-  var r,g,b: int
+  var r,g,b: float32
 
-  r = 155 + int(math.sin(screen.time * 0.6) * 100)
-  g = 155 + int(math.sin(screen.time) * 100)
-  b = 155 + int(math.sin(screen.time * 1.4) * 100)
+  r = 0.5'f32 + math.sin(screen.time * 0.6) * 0.5'f32
+  g = 0.5'f32 + math.sin(screen.time) * 0.5'f32
+  b = 0.5'f32 + math.sin(screen.time * 1.4) * 0.5'f32
 
-  ludens.SetClearColor(color(r, g, b))
+  ludens.SetClearColor(r, g, b)
 
 
 ### Create the game

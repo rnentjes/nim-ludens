@@ -22,7 +22,6 @@ type
     width, height: float32
     projectionmatrix*: PMatrix
     fov, near, far: float32
-    clearColor: TColor
     window*: sfml.PRenderWindow
     textview*: PView
 
@@ -58,7 +57,6 @@ proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = f
   result.fov = 75'f32
   result.near = 1'f32
   result.far = 25'f32
-  result.clearColor = sfml.color(20, 0, 20)
   result.viewportWidth = width
   result.viewportHeight = height
 
@@ -67,12 +65,8 @@ proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = f
   ludens = result
 
 
-proc SetClearColor*(game: Game, clearColor: TColor) =
-  game.clearColor = clearColor
-  gl.glClearColor(float32(clearColor.r) / 255'f32,
-                  float32(clearColor.g) / 255'f32,
-                  float32(clearColor.b) / 255'f32,
-                  float32(clearColor.a) / 255'f32)
+proc SetClearColor*(game: Game, r,g,b: float32) =
+  gl.glClearColor(r, g, b, 1'f32)
 
 
 proc GetFrameRate*(game: Game): float32 =
@@ -158,6 +152,8 @@ proc Initialize(game: Game) =
 
     game.Resize(game.viewportWidth, game.viewportHeight)
     game.gameScreen.Init()
+
+    game.SetClearColor(0'f32, 0'f32, 0'f32)
 
 
 proc SetScreen*(game: Game, gameScreen: Screen) =

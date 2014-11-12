@@ -9,7 +9,7 @@ import matrix
 type
   TMesh = object
     drawType: GLenum
-    data: array[0..8192, float32]
+    data: array[0..65536, float32]
     count: int
     blockLength: int
     drawLength: int

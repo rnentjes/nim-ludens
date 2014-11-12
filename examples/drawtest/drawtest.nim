@@ -97,6 +97,6 @@ var shooter = game.create(startScreen = createScreen(),
                           width = 600,
                           height = 900)
 
-shooter.SetClearColor(color(40, 40, 40))
+shooter.SetClearColor(0.16'f32, 0.16'f32, 0.16'f32)
 shooter.SetOrthoHeight(900'f32)
 shooter.Run()

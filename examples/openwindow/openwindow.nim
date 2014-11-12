@@ -93,11 +93,11 @@ method KeyUp*(screen: ExampleScreen, key: TKeyCode) =
 
 var shooter = game.create(startScreen = createScreen(),
                           title = "Example splash screen!",
-                          vsync = fals,
+                          vsync = false,
                           fullscreen = false,
                           width = 600,
                           height = 900)
 
-shooter.SetClearColor(color(40, 40, 40))
+shooter.SetClearColor(0.16'f32, 0.16'f32, 0.16'f32)
 shooter.SetOrthoHeight(900'f32)
 shooter.Run()

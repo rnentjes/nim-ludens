@@ -66,12 +66,8 @@ method Render*(screen: ExampleScreen) =
 
     screen.cube.draw(x, y, z, 0.025, x, y, z)
 
-  #screen.cube.draw(0, -0.5, -4, 0.3, 0, y, x)
-  #screen.cube.draw(0.5, 0, -2, 0.2, x, y, 0)
+  # final draw call
   screen.cube.flush()
-
-  # actual draw call!
-  #screen.txt.flush()
 
   if screen.showInfo:
     screen.font.SetColor(color(255, 255, 255, 255))
@@ -109,12 +105,12 @@ method KeyUp*(screen: ExampleScreen, key: TKeyCode) =
 
 var shooter = game.create(startScreen = createScreen(),
                           title = "3D Cubes",
-                          vsync = false,
+                          vsync = true,
                           fullscreen = false,
                           width = 800,
                           height = 600)
 
-shooter.SetClearColor(color(40, 40, 40))
+shooter.SetClearColor(0.16'f32, 0.16'f32, 0.16'f32)
 # this sets orthographic project used by fonts
 shooter.SetOrthoWidth(800'f32)
 # perspective settings doesn't overwrite font view
