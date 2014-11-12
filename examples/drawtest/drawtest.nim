@@ -23,7 +23,7 @@ type
 
 proc createScreen*(): ExampleScreen =
   result = ExampleScreen()
-  result.number = 5
+  result.number = 6000
 
 
 method Init*(screen: ExampleScreen) =
@@ -72,7 +72,7 @@ method Render*(screen: ExampleScreen) =
 
 
 method KeyUp*(screen: ExampleScreen, key: TKeyCode) =
-  var multiplier = 1.4
+  var multiplier = 1.1
   if key == sfml.KeyLeft:
     screen.number = int(float(screen.number) / multiplier)
 
