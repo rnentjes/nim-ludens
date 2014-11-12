@@ -136,6 +136,8 @@ proc Dispose*(cube: Cuber) =
 
 
 proc flush*(cube: Cuber) =
+  gl.glEnable(GL_DEPTH_TEST)
+  gl.glDepthFunc(GL_LEQUAL)
 
   cube.mesh.Draw()
 
@@ -143,16 +145,16 @@ proc flush*(cube: Cuber) =
 
 
 proc draw*(cube: Cuber, x,y,z,size, rx,ry,rz: float32) =
-  cube.mesh.AddVertices(   -1'f32,   -1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
-  cube.mesh.AddVertices(   +1'f32,   -1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
   cube.mesh.AddVertices(   +1'f32,   +1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
+  cube.mesh.AddVertices(   +1'f32,   -1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
+  cube.mesh.AddVertices(   -1'f32,   -1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
 
   if cube.mesh.BufferFull:
     cube.flush()
 
-  cube.mesh.AddVertices(   +1'f32,   +1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
-  cube.mesh.AddVertices(   -1'f32,   +1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
   cube.mesh.AddVertices(   -1'f32,   -1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
+  cube.mesh.AddVertices(   -1'f32,   +1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
+  cube.mesh.AddVertices(   +1'f32,   +1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
 
   if cube.mesh.BufferFull:
     cube.flush()

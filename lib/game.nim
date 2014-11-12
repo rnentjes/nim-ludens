@@ -69,6 +69,10 @@ proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = f
 
 proc SetClearColor*(game: Game, clearColor: TColor) =
   game.clearColor = clearColor
+  gl.glClearColor(float32(clearColor.r) / 255'f32,
+                  float32(clearColor.g) / 255'f32,
+                  float32(clearColor.b) / 255'f32,
+                  float32(clearColor.a) / 255'f32)
 
 
 proc GetFrameRate*(game: Game): float32 =
@@ -132,7 +136,7 @@ proc GetOrthoHeight*(game: Game) : float32 =
   result = game.height
 
 proc Initialize(game: Game) =
-    var contextSettings = newContextSettings(32, 0, 0, 2, 0)
+    var contextSettings = newContextSettings(32, 0, 8, 2, 0)
     if game.fullscreen:
       var videoMode = getDesktopMode()
       game.viewportWidth = videoMode.width
@@ -221,7 +225,8 @@ proc Run*(game: Game) =
 
     game.Update()
 
-    game.window.clear(game.clearColor)
+    gl.glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+    #game.window.clear(game.clearColor)
     game.Render()
 
     game.window.display()

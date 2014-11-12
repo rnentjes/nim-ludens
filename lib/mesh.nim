@@ -9,7 +9,7 @@ import matrix
 type
   TMesh = object
     drawType: GLenum
-    data: array[0..4096, float32]
+    data: array[0..8192, float32]
     count: int
     blockLength: int
     drawLength: int
@@ -63,7 +63,7 @@ proc createMesh*(program: PShaderProgram, setter: UniformSetter, userdata: point
 
 proc Dispose*(mesh: PMesh) =
   discard
-  
+
 proc Reset*(mesh: PMesh) =
   mesh.count = 0
 

@@ -20,6 +20,8 @@ type
     time: float32
     number: int
     cube: Cuber
+    showInfo: bool
+
 
 ##
 
@@ -34,6 +36,8 @@ method Init*(screen: ExampleScreen) =
   screen.font = createFont("data/fonts/COMPUTERRobot.ttf", color(255,100,0))
   screen.cube = createCuber()
 
+  screen.showInfo = true
+
 
 method Dispose*(screen: ExampleScreen) =
   screen.font.Dispose()
@@ -47,32 +51,38 @@ method Render*(screen: ExampleScreen) =
   var x = 0'f32
   var y = 0'f32
   var d = 0'f32
+  var dd = 1000'f32 / float32(screen.number)
   var r = 0'f32
+  var rd = 5'f32 / float32(screen.number)
+  var z = 0'f32
+
 
   for i in countup(1, screen.number):
-    r += 0.2
-    d += 3
-    x = sin(screen.time + d) * r
-    y = cos(screen.time + d) * r
+    r += rd
+    d += dd
+    x = sin(screen.time * 5 + d) * r
+    y = cos(screen.time * 7 + d) * r
+    z = -5 + sin(screen.time * 7 + d) * r
 
-    #screen.txt.draw(x, y, 25, 25)
+    screen.cube.draw(x, y, z, 0.025, x, y, z)
 
-  screen.cube.draw(0, -0.5, -4, 0.3, 0, y, x)
-  screen.cube.draw(0.5, 0, -2, 0.2, x, y, 0)
+  #screen.cube.draw(0, -0.5, -4, 0.3, 0, y, x)
+  #screen.cube.draw(0.5, 0, -2, 0.2, x, y, 0)
   screen.cube.flush()
 
   # actual draw call!
   #screen.txt.flush()
 
-  screen.font.SetColor(color(255, 255, 255, 255))
-  screen.font.DrawCentered("Cubes: " & $screen.number, 32, 0'f32, 0'f32)
+  if screen.showInfo:
+    screen.font.SetColor(color(255, 255, 255, 255))
+    screen.font.DrawCentered("Cubes: " & $screen.number, 32, 0'f32, 0'f32)
 
-  screen.font.SetColor(color(0, 100, 255, 225))
-  screen.font.DrawCentered("Try cursor keys...", 24, 0'f32, -100'f32)
+    screen.font.SetColor(color(0, 100, 255, 225))
+    screen.font.DrawCentered("Try cursor keys...", 24, 0'f32, -100'f32)
 
-  screen.font.SetColor(color(0, 0, 0, 225))
-  screen.font.DrawCentered("FrameRate: " & formatFloat(ludens.GetFrameRate(), ffDefault, 4), 24, 0'f32, -150'f32)
-  screen.font.DrawCentered("FrameTime: " & formatFloat(ludens.GetFrameTime(), ffDefault, 4), 24, 0'f32, -175'f32)
+    screen.font.SetColor(color(0, 0, 0, 225))
+    screen.font.DrawCentered("FrameRate: " & formatFloat(ludens.GetFrameRate(), ffDefault, 4), 24, 0'f32, -150'f32)
+    screen.font.DrawCentered("FrameTime: " & formatFloat(ludens.GetFrameTime(), ffDefault, 4), 24, 0'f32, -175'f32)
 
 
 method KeyUp*(screen: ExampleScreen, key: TKeyCode) =
@@ -89,6 +99,9 @@ method KeyUp*(screen: ExampleScreen, key: TKeyCode) =
   if key == sfml.KeyUp:
     screen.number = int(float(screen.number) * multiplier)
 
+  if key == sfml.KeyI:
+    screen.showInfo = not screen.showInfo
+
   screen.number = max(screen.number, 5)
 
 
@@ -98,12 +111,12 @@ var shooter = game.create(startScreen = createScreen(),
                           title = "3D Cubes",
                           vsync = false,
                           fullscreen = false,
-                          width = 600,
-                          height = 900)
+                          width = 800,
+                          height = 600)
 
 shooter.SetClearColor(color(40, 40, 40))
 # this sets orthographic project used by fonts
-shooter.SetOrthoHeight(900'f32)
+shooter.SetOrthoWidth(800'f32)
 # perspective settings doesn't overwrite font view
-shooter.Perspective(75'f32, 1'f32, 50'f32)
+shooter.Perspective(60'f32, 1'f32, 50'f32)
 shooter.Run()
