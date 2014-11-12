@@ -83,7 +83,10 @@ proc Draw*(mesh: PMesh) =
     index += attr.numberOfElements
 
   #glBufferData(GL_ARRAY_BUFFER, cast[GLsizeiptr](sizeof(GL_FLOAT) * int(mesh.count)), addr(mesh.data[0]), GL_DYNAMIC_DRAW)
-  glBufferSubData(GL_ARRAY_BUFFER, 0, cast[GLsizeiptr](sizeof(float32) * mesh.count), addr(mesh.data))
+  glBufferSubData(GL_ARRAY_BUFFER, 0, cast[GLsizeiptr](sizeof(GL_FLOAT) * mesh.count), addr(mesh.data[0]))
+
+  if mesh.count > 45000:
+    echo "Draw " & $(mesh.count / mesh.blockLength)
 
   glDrawArrays(mesh.drawType, 0, cast[GLsizei](uint(mesh.count / mesh.blockLength)))
 
@@ -99,6 +102,9 @@ proc Draw*(mesh: PMesh) =
 proc AddVertices*(mesh: PMesh, verts: varargs[float32]) =
   assert len(verts) == mesh.blockLength
   assert len(verts) + mesh.count <= mesh.dataSize
+
+  if mesh.count > 45000:
+    echo "Mesh count / dataSize " & $mesh.count & " / " & $mesh.dataSize
 
   for v in verts:
     mesh.data[mesh.count] = v

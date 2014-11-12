@@ -137,7 +137,6 @@ proc Update*(txt: Texture, delta: float32) =
 proc draw*(txt: Texture, x,y,w,h: float32, frame: int) =
   var actualFrame = frame mod txt.frames
 
-
   var xw = 1'f32 / float32(txt.countx)
   var yh = 1'f32 / float32(txt.county)
 
