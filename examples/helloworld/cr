@@ -1,3 +1,3 @@
 #!/bin/bash
 
-nimrod c -d:useRealtimeGC --parallelBuild:0 -r hello.nim
+nimrod c -d:useRealtimeGC --parallelBuild:0 -r helloworld.nim

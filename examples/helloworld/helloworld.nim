@@ -1,5 +1,5 @@
+# Hello World example
 import csfml as sfml
-import csfml
 import opengl as gl
 import math
 
@@ -8,28 +8,25 @@ import game
 import texture
 import font
 import music
-
-#
+import sound
 
 type
-  ExampleScreen* = ref object of Screen
+  HelloWorldScreen* = ref object of Screen
     font: Font
     music: Music
+    soundPlayer: SoundPlayer
+    someSound: Sound
     time: float32
-    text1Alpha: int
+    text1Alpha, mulX, mulY: int
     txt: Texture
     txtX, txtY: float32
-    mulX, mulY: int
 
-##
-
-proc createScreen*(): ExampleScreen =
-  result = ExampleScreen()
+proc createHelloWorldScreen*(): HelloWorldScreen =
+  result = HelloWorldScreen()
   result.mulX = 3
   result.mulY = 5
 
-
-method Init*(screen: ExampleScreen) =
+method Init*(screen: HelloWorldScreen) =
   screen.time = 0
 
   screen.font = createFont("data/fonts/kenvector_future.ttf", color(255,100,0))
@@ -40,14 +37,17 @@ method Init*(screen: ExampleScreen) =
 
   screen.txt = createTexture("data/images/ufoRed.png")
 
+  screen.soundPlayer = createSoundPlayer()
+  screen.someSound = createSound("data/sound/Powerup16.ogg")
 
-method Dispose*(screen: ExampleScreen) =
+method Dispose*(screen: HelloWorldScreen) =
   screen.music.Dispose()
   screen.font.Dispose()
   screen.txt.Dispose()
+  screen.someSound.Dispose()
+  screen.soundPlayer.Dispose()
 
-
-method Update*(screen: ExampleScreen, delta: float32) =
+method Update*(screen: HelloWorldScreen, delta: float32) =
   screen.time += delta
 
   screen.text1Alpha = max(int(sin(screen.time * 3) * 255), 0)
@@ -55,8 +55,7 @@ method Update*(screen: ExampleScreen, delta: float32) =
   screen.txtX = sin(screen.time * float(screen.mulX)) * 200
   screen.txtY = cos(screen.time * float(screen.mulY)) * 200
 
-
-method Render*(screen: ExampleScreen) =
+method Render*(screen: HelloWorldScreen) =
   screen.txt.draw(screen.txtX, screen.txtY, 50, 50)
   screen.txt.draw(-screen.txtX, screen.txtY, 50, 50)
   screen.txt.draw(screen.txtX, -screen.txtY, 50, 50)
@@ -65,7 +64,7 @@ method Render*(screen: ExampleScreen) =
   screen.txt.flush()
 
   screen.font.SetColor(color(255, 100, 0, 255-screen.text1Alpha))
-  screen.font.DrawCentered("Example splash screen.", 32, 0'f32, 0'f32)
+  screen.font.DrawCentered("Hello  World!", 32, 0'f32, 0'f32)
   screen.font.SetColor(color(0, 100, 255, screen.text1Alpha))
   screen.font.DrawCentered("Try cursor keys...", 24, 0'f32, -100'f32)
   screen.font.SetColor(color(255, 255, 255, 255))
@@ -75,24 +74,21 @@ method Render*(screen: ExampleScreen) =
   screen.font.DrawLeft("X multiplier: " & $screen.mulX, 16, -250'f32, 400'f32)
   screen.font.DrawRight("Y multiplier: " & $screen.mulY, 16, 250'f32, 400'f32)
 
-
-method KeyUp*(screen: ExampleScreen, key: TKeyCode) =
+method KeyUp*(screen: HelloWorldScreen, key: TKeyCode) =
   if key == sfml.KeyLeft and screen.mulX > 1:
     dec(screen.mulX)
-
   if key == sfml.KeyRight:
     inc(screen.mulX)
-
   if key == sfml.KeyDown and screen.mulY > 1:
     dec(screen.mulY)
-
   if key == sfml.KeyUp:
     inc(screen.mulY)
+  if key == sfml.KeySpace:
+    screen.soundPlayer.Play(screen.someSound)
 
 ### Create the game
-
-var shooter = game.create(startScreen = createScreen(),
-                          title = "Example splash screen!",
+var shooter = game.create(startScreen = createHelloWorldScreen(),
+                          title = "Hello World!",
                           vsync = false,
                           fullscreen = false,
                           width = 600,
