@@ -56,7 +56,7 @@ method Update*(screen: HelloWorldScreen, delta: float32) =
   screen.txtY = cos(screen.time * float(screen.mulY)) * 200
 
 method Render*(screen: HelloWorldScreen) =
-  screen.txt.draw(screen.txtX, screen.txtY, 50, 50)
+  screen.txt.draw(screen.txtX, screen.txtY)
   screen.txt.draw(-screen.txtX, screen.txtY, 50, 50)
   screen.txt.draw(screen.txtX, -screen.txtY, 50, 50)
   screen.txt.draw(-screen.txtX, -screen.txtY, 50, 50)

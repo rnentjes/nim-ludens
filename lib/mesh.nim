@@ -56,7 +56,7 @@ proc createMesh*(program: PShaderProgram, setter: UniformSetter, userdata: point
     else:
       quit("Unknown draw type " & $drawType)
 
-  echo "high: " & $high(result.data)
+  #echo "high: " & $high(result.data)
   result.dataSize = high(result.data) - (high(result.data) mod result.drawLength)
 
   glGenBuffers(1, addr(result.vertex_vbo))
@@ -87,8 +87,8 @@ proc Draw*(mesh: PMesh) =
       cGL_FLOAT, false, cast[GLsizei](mesh.blockLength * sizeof(GL_FLOAT)), cast[pointer](index * sizeof(GL_FLOAT)))
     index += attr.numberOfElements
 
-  glBufferData(GL_ARRAY_BUFFER, cast[GLsizeiptr](sizeof(GL_FLOAT) * mesh.count), addr(mesh.data[0]), GL_DYNAMIC_DRAW)
-  #glBufferSubData(GL_ARRAY_BUFFER, 0, cast[GLsizeiptr](sizeof(GL_FLOAT) * mesh.count), addr(mesh.data[0]))
+  #glBufferData(GL_ARRAY_BUFFER, cast[GLsizeiptr](sizeof(GL_FLOAT) * mesh.count), addr(mesh.data[0]), GL_DYNAMIC_DRAW)
+  glBufferSubData(GL_ARRAY_BUFFER, 0, cast[GLsizeiptr](sizeof(GL_FLOAT) * mesh.count), addr(mesh.data[0]))
 
   glDrawArrays(mesh.drawType, 0, cast[GLsizei](int32(mesh.count / mesh.blockLength)))
 
@@ -101,6 +101,10 @@ proc Draw*(mesh: PMesh) =
   mesh.Reset
 
 
+proc BufferFull*(mesh: PMesh):bool =
+  result = (mesh.count == mesh.dataSize)
+
+
 proc AddVertices*(mesh: PMesh, verts: varargs[float32]) =
   assert len(verts) == mesh.blockLength
   assert len(verts) + mesh.count <= mesh.dataSize
@@ -109,7 +113,5 @@ proc AddVertices*(mesh: PMesh, verts: varargs[float32]) =
     mesh.data[mesh.count] = v
     mesh.count = mesh.count + 1
 
-
-proc BufferFull*(mesh: PMesh):bool =
-  result = (mesh.count == mesh.dataSize)
-
+  if mesh.BufferFull:
+    mesh.Draw()

@@ -18,6 +18,9 @@ proc Dispose*(font: Font) =
 proc SetColor*(font: Font, color: TColor) =
   font.color = color
 
+proc SetColor*(font: Font, r,g,b,a: float32) =
+  font.color = color(int(255*r), int(255*g), int(255*b), int(255*a))
+
 proc DrawCentered*(font: Font, txt: string, size: int, x,y: float) =
   var text = newText(txt, font.font, size)
 

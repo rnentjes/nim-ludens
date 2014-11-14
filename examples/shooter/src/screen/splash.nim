@@ -19,7 +19,7 @@ type
     text1Alpha: int
 
 var
-  texts1 = ["Music", "Graphics", "Game"]
+  texts1 = ["Music", "Graphics", "Programming"]
 
   texts2 = ["DeceasedSuperiorTechnician", "Kenney.nl", "Rien Nentjes"]
   currentText = 0

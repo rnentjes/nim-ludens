@@ -7,7 +7,7 @@ import screen/splash as splash
 
 var shooter = game.create(startScreen = splash.createSplash(),
                           title = "Nimvaders!",
-                          vsync = true,
+                          vsync = false,
                           fullscreen = false,
                           width = 600,
                           height = 900)

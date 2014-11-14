@@ -176,6 +176,7 @@ method Update*(screen: GameScreen, delta: float32) =
     var bomb = screen.enemybullets[i]
 
     bomb.Update(delta)
+    bomb.Angle(bomb.Angle() + delta * 3)
 
     if screen.playerDeath == 0 and collides(bomb.x - 10, bomb.y - 10, 20, 20, screen.playerX - 20, -400, 40, 40):
        screen.playerDeath = screen.time
@@ -268,7 +269,7 @@ method Render*(screen: GameScreen) =
 
   for i in countup(0, screen.nextEnemyBullet-1):
     var bomb = screen.enemybullets[i]
-    screen.bomb.draw(bomb.X() - 5, bomb.Y(), 20, 20)
+    screen.bomb.drawScaled(bomb.X(), bomb.Y(), 0.5'f32, bomb.Angle())
 
   for i in countup(0, 31):
     var ufo = screen.ufos[i]
@@ -308,10 +309,11 @@ method Render*(screen: GameScreen) =
     screen.font.SetColor(color(255, 50, 0, int(alpha)))
     screen.font.DrawCentered("Wave " & intToStr(screen.waveNumber), 48, 0'f32, 200'f32)
 
-
   screen.font.SetColor(color(255, 200, 10, 150))
   screen.font.DrawLeft("Score: " & intToStr(screen.score), 24, -280'f32, 420'f32)
   screen.font.DrawRight("Wave: " & intToStr(screen.waveNumber), 24, 280'f32, 420'f32)
+  screen.font.DrawLeft("FPS: " & formatFloat(ludens.GetFrameRate(), ffDefault, 4), 24, -280'f32, 395'f32)
+  screen.font.DrawRight("FT: " & formatFloat(ludens.GetFrameTime(), ffDefault, 4), 24, 280'f32, 395'f32)
 
 method KeyUp*(screen: GameScreen, key: TKeyCode) =
   if key == sfml.KeySpace:

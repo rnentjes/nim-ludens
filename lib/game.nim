@@ -82,7 +82,7 @@ proc Resize(game: Game, width, height: int) =
   game.viewportHeight = height
 
   game.window.setSize(vec2i(width, height))
-  echo("Resize: ", intToStr(width), ", ", intToStr(height))
+  #echo("Resize: ", intToStr(width), ", ", intToStr(height))
 
   var aspect = float32(game.viewportWidth) / float32(game.viewportHeight)
   case game.projection:
@@ -157,7 +157,7 @@ proc Initialize(game: Game) =
 
 
 proc SetScreen*(game: Game, gameScreen: Screen) =
-  echo "Set screen"
+  #echo "Set screen"
   if game.gameScreen != nil:
     game.gameScreen.Dispose()
 

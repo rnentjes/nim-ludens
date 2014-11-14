@@ -108,6 +108,9 @@ var
 proc cuberMeshSetter(program: PShaderProgram, userdata: pointer) =
   var cube: Cuber = cast[Cuber](userdata)
 
+  gl.glEnable(GL_DEPTH_TEST)
+  gl.glDepthFunc(GL_LEQUAL)
+
   program.SetUniformMatrix("u_pMatrix", ludens.projectionmatrix.Address)
 
 
@@ -126,7 +129,6 @@ proc initCuber(): Cuber =
                     ] )
 
 
-
 proc createCuber*(): Cuber =
   result = initCuber()
 
@@ -136,12 +138,7 @@ proc Dispose*(cube: Cuber) =
 
 
 proc flush*(cube: Cuber) =
-  gl.glEnable(GL_DEPTH_TEST)
-  gl.glDepthFunc(GL_LEQUAL)
-
   cube.mesh.Draw()
-
-  #gl.glBindTexture(GL_TEXTURE_2D, 0);
 
 
 proc draw*(cube: Cuber, x,y,z,size, rx,ry,rz: float32) =
@@ -149,83 +146,46 @@ proc draw*(cube: Cuber, x,y,z,size, rx,ry,rz: float32) =
   cube.mesh.AddVertices(   +1'f32,   -1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
   cube.mesh.AddVertices(   -1'f32,   -1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
 
-  if cube.mesh.BufferFull:
-    cube.flush()
-
   cube.mesh.AddVertices(   -1'f32,   -1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
   cube.mesh.AddVertices(   -1'f32,   +1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
   cube.mesh.AddVertices(   +1'f32,   +1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 0'f32, 1'f32)
-
-  if cube.mesh.BufferFull:
-    cube.flush()
 
   cube.mesh.AddVertices(   -1'f32,   -1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 1'f32, 0'f32, 1'f32)
   cube.mesh.AddVertices(   -1'f32,   -1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 1'f32, 0'f32, 1'f32)
   cube.mesh.AddVertices(   -1'f32,    1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 1'f32, 0'f32, 1'f32)
 
-  if cube.mesh.BufferFull:
-    cube.flush()
-
   cube.mesh.AddVertices(   -1'f32,    1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 1'f32, 0'f32, 1'f32)
   cube.mesh.AddVertices(   -1'f32,    1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 1'f32, 0'f32, 1'f32)
   cube.mesh.AddVertices(   -1'f32,   -1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 1'f32, 0'f32, 1'f32)
-
-  if cube.mesh.BufferFull:
-    cube.flush()
 
   cube.mesh.AddVertices(   -1'f32,   -1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 0'f32, 1'f32, 1'f32)
   cube.mesh.AddVertices(    1'f32,    1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 0'f32, 1'f32, 1'f32)
   cube.mesh.AddVertices(   -1'f32,    1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 0'f32, 1'f32, 1'f32)
 
-  if cube.mesh.BufferFull:
-    cube.flush()
-
   cube.mesh.AddVertices(   -1'f32,   -1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 0'f32, 1'f32, 1'f32)
   cube.mesh.AddVertices(    1'f32,    1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 0'f32, 1'f32, 1'f32)
   cube.mesh.AddVertices(    1'f32,   -1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 0'f32, 1'f32, 1'f32)
-
-  if cube.mesh.BufferFull:
-    cube.flush()
 
   cube.mesh.AddVertices(    1'f32,   -1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 1'f32, 1'f32)
   cube.mesh.AddVertices(    1'f32,    1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 1'f32, 1'f32)
   cube.mesh.AddVertices(    1'f32,    1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 1'f32, 1'f32)
 
-  if cube.mesh.BufferFull:
-    cube.flush()
-
   cube.mesh.AddVertices(    1'f32,    1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 1'f32, 1'f32)
   cube.mesh.AddVertices(    1'f32,   -1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 1'f32, 1'f32)
   cube.mesh.AddVertices(    1'f32,   -1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 0'f32, 1'f32, 1'f32)
-
-  if cube.mesh.BufferFull:
-    cube.flush()
 
   cube.mesh.AddVertices(    1'f32,    1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 1'f32, 0'f32, 1'f32)
   cube.mesh.AddVertices(   -1'f32,    1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 1'f32, 0'f32, 1'f32)
   cube.mesh.AddVertices(   -1'f32,    1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 1'f32, 0'f32, 1'f32)
 
-  if cube.mesh.BufferFull:
-    cube.flush()
-
   cube.mesh.AddVertices(   -1'f32,    1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 1'f32, 0'f32, 1'f32)
   cube.mesh.AddVertices(    1'f32,    1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 1'f32, 0'f32, 1'f32)
   cube.mesh.AddVertices(    1'f32,    1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 1'f32, 1'f32, 0'f32, 1'f32)
-
-  if cube.mesh.BufferFull:
-    cube.flush()
 
   cube.mesh.AddVertices(    1'f32,   -1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 1'f32, 1'f32, 1'f32)
   cube.mesh.AddVertices(   -1'f32,   -1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 1'f32, 1'f32, 1'f32)
   cube.mesh.AddVertices(   -1'f32,   -1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 1'f32, 1'f32, 1'f32)
 
-  if cube.mesh.BufferFull:
-    cube.flush()
-
   cube.mesh.AddVertices(   -1'f32,   -1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 1'f32, 1'f32, 1'f32)
   cube.mesh.AddVertices(    1'f32,   -1'f32,  -1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 1'f32, 1'f32, 1'f32)
   cube.mesh.AddVertices(    1'f32,   -1'f32,   1'f32,  x,  y,  z,  size,  rx,  ry,  rz , 0'f32, 1'f32, 1'f32, 1'f32)
-
-  if cube.mesh.BufferFull:
-    cube.flush()
-
