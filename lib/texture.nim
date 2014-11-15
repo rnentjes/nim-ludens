@@ -179,15 +179,10 @@ proc draw*(txt: Texture, x,y,w,h: float32, frame: int) =
   txt.mesh.AddVertices( +w/2, -h/2,  x+w/2, y+h/2 ,  tx + xw, ty + yh   , 1'f32, 0'f32  )
   txt.mesh.AddVertices( +w/2, +h/2,  x+w/2, y+h/2 ,  tx + xw, ty        , 1'f32, 0'f32 )
 
-  if txt.mesh.BufferFull:
-    txt.flush()
-
   txt.mesh.AddVertices( +w/2, +h/2,  x+w/2, y+h/2 ,  tx + xw, ty         , 1'f32, 0'f32 )
   txt.mesh.AddVertices( -w/2, +h/2,  x+w/2, y+h/2 ,  tx     , ty         , 1'f32, 0'f32 )
   txt.mesh.AddVertices( -w/2, -h/2,  x+w/2, y+h/2 ,  tx     , ty + yh    , 1'f32, 0'f32 )
 
-  if txt.mesh.BufferFull:
-    txt.flush()
 
 proc draw*(txt: Texture, x,y,w,h: float32) =
   txt.draw(x,y,w,h,txt.currentFrame)
@@ -205,18 +200,20 @@ proc draw*(txt: Texture, x,y: float32, frame: int) =
   txt.mesh.AddVertices(    +txt.width/2, -txt.height/2,  x,y,  tx + xw, ty + yh    , 1'f32, 0'f32 )
   txt.mesh.AddVertices(    +txt.width/2, +txt.height/2,  x,y,  tx + xw, ty         , 1'f32, 0'f32 )
 
-  if txt.mesh.BufferFull:
-    txt.flush()
-
   txt.mesh.AddVertices(    +txt.width/2, +txt.height/2,  x,y,  tx + xw, ty         , 1'f32, 0'f32 )
   txt.mesh.AddVertices(    -txt.width/2, +txt.height/2,  x,y,  tx     , ty         , 1'f32, 0'f32 )
   txt.mesh.AddVertices(    -txt.width/2, -txt.height/2,  x,y,  tx     , ty + yh    , 1'f32, 0'f32 )
 
-  if txt.mesh.BufferFull:
-    txt.flush()
 
 proc draw*(txt: Texture, x,y: float32) =
-  txt.draw(x,y,txt.currentFrame)
+  txt.mesh.AddVertices(    -txt.width/2, -txt.height/2,  x,y,  0'f32  , 1'f32   , 1'f32, 0'f32 )
+  txt.mesh.AddVertices(    +txt.width/2, -txt.height/2,  x,y,  1'f32  , 1'f32   , 1'f32, 0'f32 )
+  txt.mesh.AddVertices(    +txt.width/2, +txt.height/2,  x,y,  1'f32  , 0'f32   , 1'f32, 0'f32 )
+
+  txt.mesh.AddVertices(    +txt.width/2, +txt.height/2,  x,y,  1'f32  , 0'f32   , 1'f32, 0'f32 )
+  txt.mesh.AddVertices(    -txt.width/2, +txt.height/2,  x,y,  0'f32  , 0'f32   , 1'f32, 0'f32 )
+  txt.mesh.AddVertices(    -txt.width/2, -txt.height/2,  x,y,  0'f32  , 1'f32   , 1'f32, 0'f32 )
+
 
 proc drawScaled*(txt: Texture, x, y, scale, angle: float32, frame: int) =
   var actualFrame = frame mod txt.frames
@@ -227,19 +224,20 @@ proc drawScaled*(txt: Texture, x, y, scale, angle: float32, frame: int) =
   var tx = float32(actualFrame mod txt.countx) * xw
   var ty = float32(int(actualFrame / txt.countx)) * yh
 
-  txt.mesh.AddVertices(    -txt.width/2, -txt.height/2,  x,y,  tx     , ty + yh    , scale, angle )
-  txt.mesh.AddVertices(    +txt.width/2, -txt.height/2,  x,y,  tx + xw, ty + yh    , scale, angle )
-  txt.mesh.AddVertices(    +txt.width/2, +txt.height/2,  x,y,  tx + xw, ty         , scale, angle )
+  txt.mesh.AddVertices(    -txt.width/2, -txt.height/2,  x, y,  tx     , ty + yh  , scale, angle )
+  txt.mesh.AddVertices(    +txt.width/2, -txt.height/2,  x, y,  tx + xw, ty + yh  , scale, angle )
+  txt.mesh.AddVertices(    +txt.width/2, +txt.height/2,  x, y,  tx + xw, ty       , scale, angle )
 
-  if txt.mesh.BufferFull:
-    txt.flush()
+  txt.mesh.AddVertices(    +txt.width/2, +txt.height/2,  x, y,  tx + xw, ty       , scale, angle )
+  txt.mesh.AddVertices(    -txt.width/2, +txt.height/2,  x, y,  tx     , ty       , scale, angle )
+  txt.mesh.AddVertices(    -txt.width/2, -txt.height/2,  x, y,  tx     , ty + yh  , scale, angle )
 
-  txt.mesh.AddVertices(    +txt.width/2, +txt.height/2,  x,y,  tx + xw, ty         , scale, angle )
-  txt.mesh.AddVertices(    -txt.width/2, +txt.height/2,  x,y,  tx     , ty         , scale, angle )
-  txt.mesh.AddVertices(    -txt.width/2, -txt.height/2,  x,y,  tx     , ty + yh    , scale, angle )
-
-  if txt.mesh.BufferFull:
-    txt.flush()
 
 proc drawScaled*(txt: Texture, x,y, scale, angle: float32) =
-  txt.drawScaled(x, y, scale, angle, txt.currentFrame)
+  txt.mesh.AddVertices(    -txt.width/2, -txt.height/2,  x, y,  0'f32  , 1'f32   , scale, angle )
+  txt.mesh.AddVertices(    +txt.width/2, -txt.height/2,  x, y,  1'f32  , 1'f32   , scale, angle )
+  txt.mesh.AddVertices(    +txt.width/2, +txt.height/2,  x, y,  1'f32  , 0'f32   , scale, angle )
+
+  txt.mesh.AddVertices(    +txt.width/2, +txt.height/2,  x, y,  1'f32  , 0'f32   , scale, angle )
+  txt.mesh.AddVertices(    -txt.width/2, +txt.height/2,  x, y,  0'f32  , 0'f32   , scale, angle )
+  txt.mesh.AddVertices(    -txt.width/2, -txt.height/2,  x, y,  0'f32  , 1'f32   , scale, angle )

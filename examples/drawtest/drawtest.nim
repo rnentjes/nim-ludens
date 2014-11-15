@@ -23,7 +23,7 @@ type
 
 proc createScreen*(): ExampleScreen =
   result = ExampleScreen()
-  result.number = 6000
+  result.number = 5000
 
 
 method Init*(screen: ExampleScreen) =
@@ -55,7 +55,7 @@ method Render*(screen: ExampleScreen) =
     x = sin(screen.time + d) * r
     y = cos(screen.time + d) * r
 
-    screen.txt.draw(x, y, 25, 25)
+    screen.txt.drawScaled(x, y, 0.25'f32, 0'f32)
 
   # actual draw call!
   screen.txt.flush()

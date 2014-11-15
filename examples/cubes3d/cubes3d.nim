@@ -20,7 +20,7 @@ type
     time: float32
     number: int
     cube: Cuber
-    showInfo: bool
+    showInfo, paused: bool
 
 
 ##
@@ -37,6 +37,7 @@ method Init*(screen: ExampleScreen) =
   screen.cube = createCuber()
 
   screen.showInfo = true
+  screen.paused = false
 
 
 method Dispose*(screen: ExampleScreen) =
@@ -44,7 +45,8 @@ method Dispose*(screen: ExampleScreen) =
 
 
 method Update*(screen: ExampleScreen, delta: float32) =
-  screen.time += delta / 4
+  if not screen.paused:
+    screen.time += delta / 25
 
 
 method Render*(screen: ExampleScreen) =
@@ -64,21 +66,21 @@ method Render*(screen: ExampleScreen) =
     y = cos(screen.time * 7 + d) * r
     z = -5 + sin(screen.time * 7 + d) * r
 
-    screen.cube.draw(x, y, z, 0.025, x, y, z)
+    screen.cube.draw(x, y, z, 0.025, x*1.2, y*1.3, z*1.4)
 
   # final draw call
   screen.cube.flush()
 
   if screen.showInfo:
     screen.font.SetColor(color(255, 255, 255, 255))
-    screen.font.DrawCentered("Cubes: " & $screen.number, 32, 0'f32, 0'f32)
+    screen.font.DrawCentered("Cubes: " & $screen.number, 48, 0'f32, 0'f32)
 
     screen.font.SetColor(color(0, 100, 255, 225))
-    screen.font.DrawCentered("Try cursor keys...", 24, 0'f32, -100'f32)
+    screen.font.DrawCentered("Try cursor keys...", 32, 0'f32, -100'f32)
 
     screen.font.SetColor(color(0, 0, 0, 225))
-    screen.font.DrawCentered("FrameRate: " & formatFloat(ludens.GetFrameRate(), ffDefault, 4), 24, 0'f32, -150'f32)
-    screen.font.DrawCentered("FrameTime: " & formatFloat(ludens.GetFrameTime(), ffDefault, 4), 24, 0'f32, -175'f32)
+    screen.font.DrawCentered("FrameRate: " & formatFloat(ludens.GetFrameRate(), ffDefault, 4), 32, 0'f32, -150'f32)
+    screen.font.DrawCentered("FrameTime: " & formatFloat(ludens.GetFrameTime(), ffDefault, 4), 32, 0'f32, -175'f32)
 
 
 method KeyUp*(screen: ExampleScreen, key: TKeyCode) =
@@ -98,6 +100,9 @@ method KeyUp*(screen: ExampleScreen, key: TKeyCode) =
   if key == sfml.KeyI:
     screen.showInfo = not screen.showInfo
 
+  if key == sfml.KeyP:
+    screen.paused = not screen.paused
+
   screen.number = max(screen.number, 5)
 
 
@@ -105,14 +110,14 @@ method KeyUp*(screen: ExampleScreen, key: TKeyCode) =
 
 var shooter = game.create(startScreen = createScreen(),
                           title = "3D Cubes",
-                          vsync = true,
+                          vsync = false,
                           fullscreen = false,
                           width = 800,
                           height = 600)
 
 shooter.SetClearColor(0.16'f32, 0.16'f32, 0.16'f32)
 # this sets orthographic project used by fonts
-shooter.SetOrthoWidth(800'f32)
+shooter.SetOrthoHeight(1000'f32)
 # perspective settings doesn't overwrite font view
 shooter.Perspective(60'f32, 1'f32, 50'f32)
 shooter.Run()

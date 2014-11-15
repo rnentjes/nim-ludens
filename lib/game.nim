@@ -11,7 +11,7 @@ type
   Game* = ref object of TObject
     gameScreen*: Screen
     running: bool
-    fullscreen, vsync: bool
+    fullscreen, vsync, depthBuffer: bool
     startTime: cdouble
     title*: string
     clock: PClock
@@ -35,7 +35,7 @@ proc Initialize(game: Game)
 proc Resize(game: Game, width, height: int)
 proc SetScreen*(game: Game, gameScreen: Screen)
 
-proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = false, vsync: bool = false, width: int = 800, height: int = 600): Game =
+proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = false, vsync: bool = false, depthBuffer: bool = true, width: int = 800, height: int = 600): Game =
   if ludens != nil:
     ludens.Dispose()
 
@@ -44,6 +44,7 @@ proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = f
   result.running = false
   result.fullscreen = fullscreen
   result.vsync = vsync
+  result.depthBuffer = depthBuffer
   result.title = title
   result.gameScreen = startScreen
   result.lastTime = 0'f32
@@ -131,6 +132,9 @@ proc GetOrthoHeight*(game: Game) : float32 =
 
 proc Initialize(game: Game) =
     var contextSettings = newContextSettings(32, 0, 8, 2, 0)
+    if not game.depthBuffer:
+      contextSettings = newContextSettings(0, 0, 8, 2, 0)
+
     if game.fullscreen:
       var videoMode = getDesktopMode()
       game.viewportWidth = videoMode.width
@@ -222,7 +226,7 @@ proc Run*(game: Game) =
     game.Update()
 
     gl.glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
-    #game.window.clear(game.clearColor)
+
     game.Render()
 
     game.window.display()
