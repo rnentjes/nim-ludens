@@ -9,6 +9,7 @@ import texture
 import font
 import music
 import sound
+import fader
 
 type
   HelloWorldScreen* = ref object of Screen
@@ -20,14 +21,17 @@ type
     text1Alpha, mulX, mulY: int
     txt: Texture
     txtX, txtY: float32
+    fader: Fader
+    fadeAlpha: float32
 
 proc createHelloWorldScreen*(): HelloWorldScreen =
   result = HelloWorldScreen()
   result.mulX = 3
   result.mulY = 5
+  result.fadeAlpha = 0'f32
 
 method Init*(screen: HelloWorldScreen) =
-  screen.time = 0
+  screen.fader = createFader()
 
   screen.font = createFont("data/fonts/kenvector_future.ttf", color(255,100,0))
   screen.text1Alpha = 0
@@ -39,6 +43,8 @@ method Init*(screen: HelloWorldScreen) =
 
   screen.soundPlayer = createSoundPlayer()
   screen.someSound = createSound("data/sound/Powerup16.ogg")
+
+  screen.time = 0
 
 method Dispose*(screen: HelloWorldScreen) =
   screen.music.Dispose()
@@ -55,11 +61,17 @@ method Update*(screen: HelloWorldScreen, delta: float32) =
   screen.txtX = sin(screen.time * float(screen.mulX)) * 200
   screen.txtY = cos(screen.time * float(screen.mulY)) * 200
 
+  if screen.time < 1'f32 and screen.time > 0.8'f32:
+    screen.fadeAlpha = 1 - ((1 - screen.time) * 5'f32)
+
+  if screen.time > 1'f32:
+    screen.fadeAlpha -= 0.33 * delta
+
 method Render*(screen: HelloWorldScreen) =
   screen.txt.draw(screen.txtX, screen.txtY)
-  screen.txt.draw(-screen.txtX, screen.txtY, 50, 50)
-  screen.txt.draw(screen.txtX, -screen.txtY, 50, 50)
-  screen.txt.draw(-screen.txtX, -screen.txtY, 50, 50)
+  screen.txt.draw(-screen.txtX, screen.txtY)
+  screen.txt.draw(screen.txtX, -screen.txtY)
+  screen.txt.draw(-screen.txtX, -screen.txtY)
   # actual draw call!
   screen.txt.flush()
 
@@ -74,6 +86,13 @@ method Render*(screen: HelloWorldScreen) =
   screen.font.DrawLeft("X multiplier: " & $screen.mulX, 16, -250'f32, 400'f32)
   screen.font.DrawRight("Y multiplier: " & $screen.mulY, 16, 250'f32, 400'f32)
 
+  if screen.time < 1'f32:
+    screen.fader.Fade(0'f32,0'f32,0'f32,1'f32)
+
+  if screen.fadeAlpha > 0:
+    screen.fader.Fade(1'f32,1'f32,1'f32,screen.fadeAlpha)
+    # screen.fader.Fade(0'f32,0'f32,0'f32,screen.fadeAlpha)
+
 method KeyUp*(screen: HelloWorldScreen, key: TKeyCode) =
   if key == sfml.KeyLeft and screen.mulX > 1:
     dec(screen.mulX)
@@ -87,13 +106,13 @@ method KeyUp*(screen: HelloWorldScreen, key: TKeyCode) =
     screen.soundPlayer.Play(screen.someSound)
 
 ### Create the game
-var shooter = game.create(startScreen = createHelloWorldScreen(),
+var helloworld = game.create(startScreen = createHelloWorldScreen(),
                           title = "Hello World!",
-                          vsync = false,
+                          vsync = true,
                           fullscreen = false,
                           width = 600,
                           height = 900)
 
-shooter.SetClearColor(0.16'f32, 0.16'f32, 0.16'f32)
-shooter.SetOrthoHeight(900'f32)
-shooter.Run()
+helloworld.SetClearColor(0.16'f32, 0.16'f32, 0.16'f32)
+helloworld.SetOrthoHeight(900'f32)
+helloworld.Run()

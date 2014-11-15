@@ -25,4 +25,3 @@ method KeyUp*(screen: Screen, key: TKeyCode) =
 
 method KeyRepeat*(screen: Screen, key: TKeyCode) =
   discard
-

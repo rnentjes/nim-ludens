@@ -231,5 +231,4 @@ proc Run*(game: Game) =
 
     game.window.display()
 
-
   game.Dispose()
