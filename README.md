@@ -7,15 +7,15 @@ Install dependencies with nimble:
   - opengl
   - sfml
 
-## Ubuntu
+## Linux
 
-Install ubuntu package:
+Install package:
 
   - libcsfml-dev
 
 ## Windows
 
-Make sure sfml dll are on your PATH. You can find them in the dlls directory.
+Make sure the correct (32 or 64 bit) sfml dll's are on your PATH. You can find them in the dlls directory. Which kind of executables nimrod produces depends on the nimrod install you used.
 
 ## Mac
 
