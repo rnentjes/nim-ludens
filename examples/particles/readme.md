@@ -1,0 +1,1 @@
+Draw test with particles

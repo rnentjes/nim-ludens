@@ -18,6 +18,7 @@ type
     vertex_vbo: GLuint
     program: PShaderProgram
     setter: UniformSetter
+    resetter: UniformSetter
     attrs: seq[TMeshAttr]
     attrLocations: TTable[string, GLuint]
     userdata: pointer
@@ -53,6 +54,8 @@ proc createMesh*(program: PShaderProgram, setter: UniformSetter, userdata: point
   case drawType
     of GL_TRIANGLES:
       result.drawLength = result.blockLength * 3
+    of GL_POINTS:
+      result.drawLength = result.blockLength * 1
     else:
       quit("Unknown draw type " & $drawType)
 
@@ -63,6 +66,11 @@ proc createMesh*(program: PShaderProgram, setter: UniformSetter, userdata: point
   glBindBuffer(GL_ARRAY_BUFFER, result.vertex_vbo)
   glBufferData(GL_ARRAY_BUFFER, cast[GLsizeiptr](sizeof(GL_FLOAT) * high(result.data)), addr(result.data[0]), GL_DYNAMIC_DRAW)
   glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+
+proc createMesh*(program: PShaderProgram, setter: UniformSetter, resetter: UniformSetter, userdata: pointer, drawType: GLenum, attribs: seq[TMeshAttr]) : PMesh =
+  result = createMesh(program, setter, userdata, drawType, attribs)
+  result.resetter = resetter
 
 
 proc Dispose*(mesh: PMesh) =
@@ -96,6 +104,9 @@ proc Draw*(mesh: PMesh) =
     glDisableVertexAttribArray(mesh.attrLocations[attr.attribute])
 
   glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+  if mesh.resetter != nil:
+    mesh.resetter(mesh.program, mesh.userdata)
 
   mesh.program.Done()
   mesh.Reset

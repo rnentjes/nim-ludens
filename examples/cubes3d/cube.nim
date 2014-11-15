@@ -96,13 +96,11 @@ void main() {
 type
   Cuber* = ref object of TObject
     mesh: PMesh
+    program: PShaderProgram
 
   Cube = ref object
     x,y,z,rx,ry,rz: float32
     dx,dy,dz,drx,dry,drz: float32
-
-var
-  program: PShaderProgram
 
 
 proc cuberMeshSetter(program: PShaderProgram, userdata: pointer) =
@@ -117,10 +115,9 @@ proc cuberMeshSetter(program: PShaderProgram, userdata: pointer) =
 proc initCuber(): Cuber =
   result = Cuber()
 
-  if program == nil:
-    program = createShaderProgram(vert, frag)
+  result.program = createShaderProgram(vert, frag)
 
-  result.mesh = createMesh(program, cuberMeshSetter, cast[pointer](result), GL_TRIANGLES,
+  result.mesh = createMesh(result.program, cuberMeshSetter, cast[pointer](result), GL_TRIANGLES,
                  @[TMeshAttr(attribute: "a_coords", numberOfElements: 3),
                    TMeshAttr(attribute: "a_position", numberOfElements: 3),
                    TMeshAttr(attribute: "a_size", numberOfElements: 1),
