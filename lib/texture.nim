@@ -105,6 +105,7 @@ proc textureMeshSetter(program: PShaderProgram, userdata: pointer) =
   gl.glActiveTexture(GL_TEXTURE0);
 
   sfml.bindGL(txt.sfmlTexture)
+  txt.sfmlTexture.setSmooth(ludens.Smooth())
 
   program.SetUniformMatrix("u_pMatrix", ludens.projectionmatrix.Address)
   program.SetUniform1i("u_texture", 0)

@@ -11,7 +11,7 @@ type
   Game* = ref object of TObject
     gameScreen*: Screen
     running: bool
-    fullscreen, vsync, depthBuffer: bool
+    fullscreen, vsync, depthBuffer, smooth: bool
     startTime: cdouble
     title*: string
     clock: PClock
@@ -25,6 +25,7 @@ type
     window*: sfml.PRenderWindow
     textview*: PView
 
+
 var
   #global
   ludens*: Game
@@ -35,7 +36,7 @@ proc Initialize(game: Game)
 proc Resize(game: Game, width, height: int)
 proc SetScreen*(game: Game, gameScreen: Screen)
 
-proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = false, vsync: bool = false, depthBuffer: bool = true, width: int = 800, height: int = 600): Game =
+proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = false, vsync: bool = false, depthBuffer: bool = true, smooth: bool = true, width: int = 800, height: int = 600): Game =
   if ludens != nil:
     ludens.Dispose()
 
@@ -45,6 +46,7 @@ proc create*(title: string = "Ludens", startScreen: Screen, fullscreen: bool = f
   result.fullscreen = fullscreen
   result.vsync = vsync
   result.depthBuffer = depthBuffer
+  result.smooth = smooth
   result.title = title
   result.gameScreen = startScreen
   result.lastTime = 0'f32
@@ -77,6 +79,9 @@ proc GetFrameRate*(game: Game): float32 =
 proc GetFrameTime*(game: Game): float32 =
   result = game.frameTime
 
+
+proc Smooth*(game: Game): bool =
+  result = game.smooth
 
 proc Resize(game: Game, width, height: int) =
   game.viewportWidth = width
@@ -131,7 +136,7 @@ proc GetOrthoHeight*(game: Game) : float32 =
   result = game.height
 
 proc Initialize(game: Game) =
-    var contextSettings = newContextSettings(32, 0, 8, 2, 0)
+    var contextSettings = newContextSettings(32, 0, 0, 2, 0)
     if not game.depthBuffer:
       contextSettings = newContextSettings(0, 0, 8, 2, 0)
 
@@ -174,12 +179,9 @@ proc Update*(game: Game) =
   var frameDelta = game.currentTime - game.lastTime
   game.lastTime = game.currentTime
 
-  #echo("DELTA: $1" % formatFloat(frameDelta, ffDefault, 9))
-
   if game.currentTime - game.lastFPSTime > 1.0:
       game.frameRate = float(game.frameCount) / (game.currentTime - game.lastFPSTime)
       game.frameTime = 1000.0 / game.frameRate
-      #echo("FPS: $1" % formatFloat(frameRate, ffDefault, 6))
 
       game.lastFPSTime = game.currentTime
       game.frameCount = 0
@@ -191,7 +193,7 @@ proc Update*(game: Game) =
 proc Render*(game: Game) =
   game.gameScreen.Render()
 
-  #GC_step(1000)
+  GC_step(1000)
 
 
 proc Stop*(game: Game) =
@@ -205,7 +207,7 @@ proc Dispose(game: Game) =
 
 proc Run*(game: Game) =
   var evt: TEvent
-  #GC_disable()
+  GC_disable()
   game.running = true
 
   while game.running:
