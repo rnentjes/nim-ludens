@@ -1,4 +1,4 @@
-# Hello World example
+## Hello World example
 import csfml as sfml
 import opengl as gl
 import math
@@ -24,17 +24,17 @@ type
     fader: Fader
     fadeAlpha: float32
 
-# constructor for your screen
-# note that their might not be an opengl pr sfml context yet,
-# so do the loading of images and sound in the Init method
+## constructor for your screen
+## note that their might not be an opengl pr sfml context yet,
+## so do the loading of images and sound in the Init method
 proc createHelloWorldScreen*(): HelloWorldScreen =
   result = HelloWorldScreen()
   result.mulX = 3
   result.mulY = 5
   result.fadeAlpha = 0'f32
 
-# This is called before the screen is first shown
-# Do all loading of assets in this method
+## This is called before the screen is first shown
+## Do all loading of assets in this method
 method Init*(screen: HelloWorldScreen) =
   screen.fader = createFader()
 
@@ -51,7 +51,7 @@ method Init*(screen: HelloWorldScreen) =
 
   screen.time = 0
 
-# Make sure you cleanup your assets here
+## Make sure you cleanup your assets here
 method Dispose*(screen: HelloWorldScreen) =
   screen.music.Dispose()
   screen.font.Dispose()
@@ -59,8 +59,8 @@ method Dispose*(screen: HelloWorldScreen) =
   screen.someSound.Dispose()
   screen.soundPlayer.Dispose()
 
-# Called every frame with the amound of time passed since the last frame
-# do your physics updates in here
+## Called every frame with the amount of time passed since the last frame
+## do your physics updates in here
 method Update*(screen: HelloWorldScreen, delta: float32) =
   screen.time += delta
 
@@ -75,7 +75,7 @@ method Update*(screen: HelloWorldScreen, delta: float32) =
   if screen.time > 1'f32:
     screen.fadeAlpha -= 0.33 * delta
 
-# Called every frame, do your rendering in this method
+## Called every frame, do your rendering in this method
 method Render*(screen: HelloWorldScreen) =
   screen.txt.draw(screen.txtX, screen.txtY)
   screen.txt.draw(-screen.txtX, screen.txtY)
@@ -102,7 +102,7 @@ method Render*(screen: HelloWorldScreen) =
     screen.fader.Fade(1'f32,1'f32,1'f32,screen.fadeAlpha)
     # screen.fader.Fade(0'f32,0'f32,0'f32,screen.fadeAlpha)
 
-# Called whenever a key is released
+## Called whenever a key is released
 method KeyUp*(screen: HelloWorldScreen, key: TKeyCode) =
   if key == sfml.KeyLeft and screen.mulX > 1:
     dec(screen.mulX)
@@ -115,7 +115,7 @@ method KeyUp*(screen: HelloWorldScreen, key: TKeyCode) =
   if key == sfml.KeySpace:
     screen.soundPlayer.Play(screen.someSound)
 
-### Create the game
+## Create the game
 var helloworld = game.create(startScreen = createHelloWorldScreen(),
                           title = "Hello World!",
                           vsync = true,
@@ -123,7 +123,7 @@ var helloworld = game.create(startScreen = createHelloWorldScreen(),
                           width = 600,
                           height = 900)
 
-# Set the background color
+## Set the background color
 helloworld.SetClearColor(0.16'f32, 0.16'f32, 0.16'f32)
 
 # This sets the height of the screen to 2000 units
@@ -134,5 +134,5 @@ helloworld.SetClearColor(0.16'f32, 0.16'f32, 0.16'f32)
 # so don't make this value to small, or do and get pixelart
 helloworld.SetOrthoHeight(2000'f32)
 
-# Start and run the game
+## Start and run the game
 helloworld.Run()
