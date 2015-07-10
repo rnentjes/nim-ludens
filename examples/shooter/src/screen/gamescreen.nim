@@ -78,8 +78,9 @@ method Init*(screen: GameScreen) =
   screen.nextEnemyBullet = 0
   screen.nextUfo = 0
 
-  screen.music =  createMusic("data/music/DST-TechnoBasic.ogg")
-  screen.music.play()
+  screen.music =
+    createMusic("data/music/DST-TechnoBasic.ogg")
+  screen.music.Play()
 
   screen.soundPlayer = createSoundPlayer()
   screen.bombSound = createSound("data/sound/Bomb_Drop.ogg")
@@ -160,7 +161,7 @@ method Update*(screen: GameScreen, delta: float32) =
 
     bullet.Update(delta)
 
-    if bullet.y > 450:
+    if bullet.Y > 450:
       bullet.Died()
 
   # cleanup dead bullets
@@ -178,12 +179,12 @@ method Update*(screen: GameScreen, delta: float32) =
     bomb.Update(delta)
     bomb.Angle(bomb.Angle() + delta * 3)
 
-    if screen.playerDeath == 0 and collides(bomb.x - 10, bomb.y - 10, 20, 20, screen.playerX - 20, -400, 40, 40):
+    if screen.playerDeath == 0 and collides(bomb.X - 10, bomb.Y - 10, 20, 20, screen.playerX - 20, -400, 40, 40):
        screen.playerDeath = screen.time
        bomb.Died()
        screen.addExplosion(screen.playerX - 20, -400)
 
-    if bomb.y < -450:
+    if bomb.Y < -450:
       bomb.Died()
 
   # cleanup dead bombs
@@ -206,12 +207,12 @@ method Update*(screen: GameScreen, delta: float32) =
       var bullet = screen.bullets[i]
 
       if not ufo.Dead() and
-         collides(bullet.x - 5, bullet.y - 15, 10, 30, ufo.x - 25, ufo.y, 50, 40):
+         collides(bullet.X - 5, bullet.Y - 15, 10, 30, ufo.X - 25, ufo.Y, 50, 40):
 
         bullet.Died()
         ufo.Died()
         screen.score += 90 + 10 * screen.waveNumber
-        screen.addExplosion(ufo.x - 25, ufo.y - 25)
+        screen.addExplosion(ufo.X - 25, ufo.Y - 25)
 
     if not ufo.Dead():
       aliveUfos = true
@@ -282,7 +283,7 @@ method Render*(screen: GameScreen) =
   for i in countup(0, screen.nextExplosion-1):
     var explosion = screen.explosions[i]
 
-    screen.explosion.draw(explosion.x - 25, explosion.y - 25, 100, 100, explosion.frame)
+    screen.explosion.draw(explosion.X - 25, explosion.Y - 25, 100, 100, explosion.frame)
 
   # actual draw calls
   screen.background.flush()

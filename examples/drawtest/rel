@@ -1,3 +1,3 @@
 #!/bin/bash
 
-nimrod c -d:useRealtimeGC -d:release --parallelBuild:0 --deadCodeElim:on --opt:speed -r drawtest.nim
+nim c -d:useRealtimeGC -d:release --parallelBuild:0 --deadCodeElim:on --opt:speed -r drawtest.nim

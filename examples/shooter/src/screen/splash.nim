@@ -38,7 +38,7 @@ method Init*(screen: SplashScreen) =
   screen.text1Alpha = 0
 
   screen.music =  createMusic("data/music/DST-TacticalSpace.ogg")
-  screen.music.play()
+  screen.music.Play()
 
 
 method Dispose*(screen: SplashScreen) =

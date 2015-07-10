@@ -8,7 +8,7 @@ import matrix
 type
   Projection = enum
     prProjection, prWidth, prHeight
-  Game* = ref object of TObject
+  Game* = ref object of RootObj
     gameScreen*: Screen
     running: bool
     fullscreen, vsync, depthBuffer, smooth: bool
@@ -213,9 +213,9 @@ proc Run*(game: Game) =
   while game.running:
     while game.window.pollEvent(evt):
       case evt.kind
-      of evtclosed:
+      of EvtClosed:
         game.running = false
-      of evtresized:
+      of EvtResized:
         game.Resize(evt.size.width, evt.size.height)
       of EvtKeyReleased:
         if evt.key.code == KeyEscape:

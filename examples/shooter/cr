@@ -1,3 +1,3 @@
 #!/bin/bash
 
-nimrod c -d:useRealtimeGC --parallelBuild:0 -r src/shooter.nim
+nim c -d:useRealtimeGC --parallelBuild:0 -r src/shooter.nim

@@ -2,7 +2,7 @@ import sprite
 import math
 
 type
-  Wave* = ref object of TObject
+  Wave* = ref object of RootObj
     time: float32
     x,y: float32
 
@@ -51,9 +51,9 @@ method GetY*(wave: Wave, number: int): float32 =
 
 method Update*(ufo: Ufo, delta: float32) =
   ufo.X(ufo.wave.GetX(ufo.number))
-  ufo.y(ufo.wave.GetY(ufo.number))
+  ufo.Y(ufo.wave.GetY(ufo.number))
 
 
 proc createUfo*(wave: Wave, nr: int): Ufo =
-  result = Ufo(wave: Wave, number: nr)
+  result = Ufo(wave: wave, number: nr)
   result.Y(-500)

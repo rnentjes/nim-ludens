@@ -42,7 +42,7 @@ method Init*(screen: HelloWorldScreen) =
   screen.text1Alpha = 0
 
   screen.music =  createMusic("data/music/DST-TacticalSpace.ogg")
-  screen.music.play()
+  screen.music.Play()
 
   screen.txt = createTexture("data/images/ufoRed.png")
 
