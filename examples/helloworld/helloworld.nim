@@ -25,7 +25,7 @@ type
     fadeAlpha: float32
 
 ## constructor for your screen
-## note that their might not be an opengl pr sfml context yet,
+## note that there might not be an opengl pr sfml context yet,
 ## so do the loading of images and sound in the Init method
 proc createHelloWorldScreen*(): HelloWorldScreen =
   result = HelloWorldScreen()
