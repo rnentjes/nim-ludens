@@ -1,6 +1,6 @@
 Little Nim game library
 
-#Getting started
+# Getting started
 
 Install dependencies with nimble:
 
